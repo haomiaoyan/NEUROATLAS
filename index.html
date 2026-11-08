@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NEUROATLAS · 神经图谱</title>
+    <script>
+      /* 首帧前定主题，避免闪白/闪黑：localStorage → prefers-color-scheme → light */
+      (function () {
+        try {
+          var t = localStorage.getItem('neuroatlas-theme');
+          if (t !== 'light' && t !== 'dark') {
+            t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+          document.documentElement.dataset.theme = t;
+        } catch (e) {
+          document.documentElement.dataset.theme = 'light';
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,46 @@
+/* ============================================================
+   neuroatlas · 主题变量（D2）
+   双主题：<html data-theme="light|dark">
+   数据编码色（D8）在独立 :root 块，不随主题切换。
+   ============================================================ */
+
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --ink: #1a1d21; /* 正文主色，对 --bg 对比度 ~15.9 */
+  --ink-2: #454b54; /* 次级文字，对 --bg 对比度 ~8.4 */
+  --accent: #4338ca;
+  --border: #e2e5ea;
+  /* 发光类效果（坑 #8）：浅色底用低透明色斑 + multiply */
+  --glow-blend: multiply;
+  --glow-color: rgba(67, 56, 202, 0.08);
+  --glow-2: rgba(0, 114, 178, 0.06);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0b0d12;
+  --surface: #14171e;
+  --ink: #e8eaf0;
+  --ink-2: #9aa3ad;
+  --accent: #818cf8;
+  --border: #262b36;
+  /* 深色底用 screen 加光 */
+  --glow-blend: screen;
+  --glow-color: rgba(129, 140, 248, 0.16);
+  --glow-2: rgba(86, 180, 233, 0.12);
+}
+
+/* 数据编码色 —— Okabe-Ito 色盲友好色板，主题无关（D8）。
+   Okabe-Ito 的黑色被省略：深色底上不可见。verify 断言两主题取值相同。 */
+:root {
+  --data-1: #0072b2; /* 蓝 */
+  --data-2: #e69f00; /* 橙 */
+  --data-3: #009e73; /* 绿 */
+  --data-4: #cc79a7; /* 粉 */
+  --data-5: #56b4e9; /* 天蓝 */
+  --data-6: #d55e00; /* 朱红 */
+  --data-7: #f0e442; /* 黄 */
+}
