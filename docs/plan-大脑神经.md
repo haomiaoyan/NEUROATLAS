@@ -107,7 +107,7 @@ neuroatlas/
 
 **B1 · Hero**（tag `b1`）
 - TechText 入库，改动 4 处：① 容器色接 `var(--ink)`；② reduced-motion 行为验证（源码已处理）；③ 中文副标不进 canvas，用 DOM；④ **新增 idle 处理**——源码无 idle 机制（`sweep` 默认 true、指针不在场仍持续 rAF，11111.md:447/1090/1259），传 `sweep={false}` 并新增「指针离开 hero 500ms 后停帧」逻辑（idle 是 SwarmCursor 的能力，TechText 没有，不能混用）。
-- SwarmCursor 入库，改动 2 处：① 接 ThemeProvider（`lightMode`/`color`）；② `<768px` 与 reduced-motion 条件挂载。层叠关系按 D11（TechText 为 children）。
+- SwarmCursor 入库，改动 3 处（第 3 处为 dev 排查发现的 bug fix）：① 接 ThemeProvider（`lightMode`/`color`）；② `<768px` 与 reduced-motion 条件挂载；③ **移除 cleanup 中的 `WEBGL_lose_context.loseContext()`**——React StrictMode 双挂载复用同一 canvas 节点，cleanup 杀 context 后重挂载拿回死 context，导致初始化中断、RO 失效、死 canvas 被 Chrome 合成为不透明白块（2026-11-08 用户实测发现，诊断脚本 diag-*.mjs 留档）。
 - 验收：**先断言 `getContext('webgl2')` 非空**（源码 1618 行无 webgl2 时静默返回，verify 环境需 SwiftShader 支持）；hero 画布有内容用 **CDP 截图像素统计**（SwarmCursor 未开 `preserveDrawingBuffer`，readPixels/toDataURL 只会读到空缓冲，11111.md:1611-1617）；hero `scrollWidth ≤ clientWidth+1`；rAF 帧间隔口径见 §五.7；指针离开 hero 后 500ms 内 rAF 停帧；滚动往返 hero 无残留粒子。
 
 **B2 · 导航 + 通用组件**（tag `b2`）

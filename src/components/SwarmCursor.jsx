@@ -925,7 +925,12 @@ const SwarmCursor = ({
       gl.deleteBuffer(extraBuffer);
       gl.deleteVertexArray(vao);
       gl.deleteProgram(shader.program);
-      gl.getExtension('WEBGL_lose_context')?.loseContext();
+      /* neuroatlas 修改（第 3 处）：移除 WEBGL_lose_context.loseContext()。
+         原因：React 18 StrictMode（dev）双挂载复用同一个 canvas DOM 节点，
+         cleanup 主动杀掉 context 后，重挂载的 getContext 拿回同一个已死的 context，
+         初始化中断 → ResizeObserver 未挂上 → 画布缓冲不随 resize 更新，
+         且死 canvas 被 Chrome 合成为不透明白色块（用户报告的「深色模式 hero 变白」根因）。
+         canvas 随组件卸载由浏览器回收，无需手动 loseContext。 */
     };
   }, []);
 
