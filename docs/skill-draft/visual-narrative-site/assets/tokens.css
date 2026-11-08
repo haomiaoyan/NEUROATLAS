@@ -1,0 +1,53 @@
+/* 主题 tokens 模板
+   三条规则：
+   1) 主题由 <html data-theme="light|dark"> 驱动，两套变量写在同一文件
+   2) 数据编码色放独立 :root 块，不随主题（用色盲友好色板，且要断言两主题取值相同）
+   3) 混合模式类效果（发光/光晕）必须做成随主题切换的变量，深色 screen、浅色 multiply
+*/
+
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --ink: #1a1d21;        /* 正文主色 */
+  --ink-2: #454b54;      /* 次级文字 */
+  --accent: #4338ca;
+  --border: #e2e5ea;
+  /* 发光：浅色底加光无效（screen 在白底≈不可见），改低透明色斑 + multiply */
+  --glow-blend: multiply;
+  --glow-color: rgba(67, 56, 202, 0.08);
+  --glow-2: rgba(0, 114, 178, 0.06);
+  --edge-c1: rgba(67, 56, 202, 0.45);
+  --edge-c2: rgba(0, 114, 178, 0.35);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0b0d12;
+  --surface: #14171e;
+  --ink: #e8eaf0;
+  --ink-2: #9aa3ad;
+  --accent: #818cf8;
+  --border: #262b36;
+  --glow-blend: screen;
+  --glow-color: rgba(129, 140, 248, 0.16);
+  --glow-2: rgba(86, 180, 233, 0.12);
+  --edge-c1: rgba(129, 140, 248, 0.75);
+  --edge-c2: rgba(86, 180, 233, 0.6);
+}
+
+/* 主题无关 */
+:root {
+  --nav-h: 64px;   /* 悬浮导航实测高（含边框），pin 起点与 scroll-padding 都由它派生 */
+
+  /* 数据编码色：Okabe-Ito 色盲友好色板，故意不随主题。
+     黑色被省略——深色底上不可见。验收要断言两主题取到的值完全相同。 */
+  --data-1: #0072b2;
+  --data-2: #e69f00;
+  --data-3: #009e73;
+  --data-4: #cc79a7;
+  --data-5: #56b4e9;
+  --data-6: #d55e00;
+  --data-7: #f0e442;
+}

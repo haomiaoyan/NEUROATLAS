@@ -157,6 +157,33 @@ async function loadWithTheme(theme) {
   await page.goto(BASE, { waitUntil: 'networkidle0' });
 }
 
+/* 视口变更后布局是异步的：ScrollTrigger 的 pinSpacer 会在 resize 后重算宽度与文档高度。
+   直接读 scrollWidth 会拿到缩窄前的旧值（实测：clientWidth 已 375，scrollWidth 仍 1280）。
+   做法：setViewport 后等两次 rAF + 一小段静置，再轮询 scrollWidth 直到连续两次相同或超时。 */
+async function setViewportSettled(width, height = 800) {
+  await page.setViewport({ width, height });
+  await evaluate(
+    () =>
+      new Promise((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(resolve));
+      }),
+  );
+  await new Promise((r) => setTimeout(r, 400));
+  const read = () =>
+    evaluate(() => ({
+      sw: document.documentElement.scrollWidth,
+      cw: document.documentElement.clientWidth,
+    }));
+  let prev = await read();
+  for (let i = 0; i < 20; i += 1) {
+    await new Promise((r) => setTimeout(r, 100));
+    const cur = await read();
+    if (cur.sw === prev.sw && cur.cw === prev.cw && cur.cw === width) return cur;
+    prev = cur;
+  }
+  return prev;
+}
+
 async function getEffectiveBg(elHandle) {
   return evaluate((el) => {
     let node = el;
@@ -174,7 +201,7 @@ const dataColorsByTheme = {};
 
 for (const theme of THEMES) {
   await loadWithTheme(theme);
-  await page.setViewport({ width: 1280, height: 800 });
+  const overflow = await setViewportSettled(1280, 800);
 
   const attr = await evaluate(() => document.documentElement.dataset.theme);
   record(`data-theme:${theme}`, attr === theme, `data-theme=${attr}`);
@@ -187,10 +214,6 @@ for (const theme of THEMES) {
   const ratio = contrastRatio(textColor, bg);
   record(`contrast:${theme}`, ratio >= 4.5, `正文对比度 ${ratio.toFixed(2)}（≥4.5）`);
 
-  const overflow = await evaluate(() => ({
-    sw: document.documentElement.scrollWidth,
-    cw: document.documentElement.clientWidth,
-  }));
   record(`overflow-1280:${theme}`, overflow.sw <= overflow.cw + 1, `scrollWidth ${overflow.sw} ≤ ${overflow.cw}+1`);
 
   dataColorsByTheme[theme] = await evaluate(() =>
@@ -265,15 +288,11 @@ record(
 /* 375 视口溢出（两主题） */
 for (const theme of THEMES) {
   await loadWithTheme(theme);
-  await page.setViewport({ width: 375, height: 720 });
-  const overflow = await evaluate(() => ({
-    sw: document.documentElement.scrollWidth,
-    cw: document.documentElement.clientWidth,
-  }));
+  const overflow = await setViewportSettled(375, 720);
   record(`overflow-375:${theme}`, overflow.sw <= overflow.cw + 1, `scrollWidth ${overflow.sw} ≤ ${overflow.cw}+1`);
 }
 
-await page.setViewport({ width: 1280, height: 800 });
+await setViewportSettled(1280, 800);
 
 /* ===================== B2 · 导航/进度条/卡片 ===================== */
 
@@ -412,7 +431,7 @@ record(
 
 /* 2) travel 合成正确（坑 #3）：travel == 自合成轨道宽 - 裁剪窗宽，两个视口各差 ≤1px */
 const travel1280 = await evaluate(() => (window.__stage ? window.__stage() : null));
-await page.setViewport({ width: 1440, height: 800 });
+await setViewportSettled(1440, 800);
 await new Promise((r) => setTimeout(r, 900));
 const travel1440 = await evaluate(() => (window.__stage ? window.__stage() : null));
 const d1280 = travel1280 ? Math.abs(travel1280.travel - (travel1280.trackW - travel1280.winW)) : -1;
@@ -424,7 +443,7 @@ record(
 );
 
 /* 3) 移动端降级：<768px 无 pin、轨道竖排 */
-await page.setViewport({ width: 375, height: 720 });
+await setViewportSettled(375, 720);
 await new Promise((r) => setTimeout(r, 900));
 const mobileStage = await evaluate(() => ({
   hasHook: Boolean(window.__stage),
