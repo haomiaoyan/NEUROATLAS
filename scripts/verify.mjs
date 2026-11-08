@@ -273,6 +273,121 @@ for (const theme of THEMES) {
   record(`overflow-375:${theme}`, overflow.sw <= overflow.cw + 1, `scrollWidth ${overflow.sw} ≤ ${overflow.cw}+1`);
 }
 
+await page.setViewport({ width: 1280, height: 800 });
+
+/* ===================== B2 · 导航/进度条/卡片 ===================== */
+
+/* 1) 进度条：顶部 scaleX≈0，滚动到底 ≈1（读 transform 矩阵） */
+const readProgress = () =>
+  evaluate(() => {
+    const t = getComputedStyle(document.querySelector('.topnav__progress')).transform;
+    const m = /matrix\(([^)]+)\)/.exec(t);
+    return m ? Number(m[1].split(',')[0]) : -1;
+  });
+await loadWithTheme('light');
+await page.setViewport({ width: 1280, height: 800 });
+const pTop = await readProgress();
+await evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+await new Promise((r) => setTimeout(r, 500));
+const pBottom = await readProgress();
+record(
+  'progress-bar',
+  pTop <= 0.01 && pBottom >= 0.99,
+  `顶部 ${pTop.toFixed(3)}（≤0.01），底部 ${pBottom.toFixed(3)}（≥0.99）`,
+);
+
+/* 2) 发光卡片 hover：computed style 断言 + 亮度界限。
+   说明：本环境（headless Chrome）截图管线只捕获 canvas 纹理更新、不捕获 DOM 重绘
+   （diag-shot2/3/4：JS 内联改红背景 diff=0），像素 diff 不可用。
+   改用可客观判定的 computed style：hover 态 transform/描边/光晕全应用，
+   且混合模式随主题切换（坑 #8：light=multiply / dark=screen）。
+   亮度界限仍用真实像素（防黑块/防不可见）。 */
+async function glowCardCheck(theme) {
+  await loadWithTheme(theme);
+  await page.setViewport({ width: 1280, height: 800 });
+  await evaluate(() => document.querySelector('.card-group').scrollIntoView({ block: 'center' }));
+  await new Promise((r) => setTimeout(r, 500));
+  const box = await (await page.$('[data-glow-card]')).boundingBox();
+  const clip = { x: Math.round(box.x - 12), y: Math.round(box.y - 12), width: Math.round(box.width + 24), height: Math.round(box.height + 24) };
+  const shotLum = async () => {
+    const b64 = await page.screenshot({ encoding: 'base64', clip });
+    return evaluate(async (src) => {
+      const img = new Image();
+      img.src = 'data:image/png;base64,' + src;
+      await img.decode();
+      const c = document.createElement('canvas');
+      c.width = img.width;
+      c.height = img.height;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      const d = ctx.getImageData(0, 0, c.width, c.height).data;
+      let sum = 0, n = 0;
+      for (let i = 0; i < d.length; i += 40) {
+        sum += 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
+        n++;
+      }
+      return sum / n;
+    }, b64);
+  };
+  await page.mouse.move(10, 10, { steps: 3 }); /* 显式离开卡片 */
+  await new Promise((r) => setTimeout(r, 500));
+  const beforeLum = await shotLum();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2, { steps: 4 });
+  await new Promise((r) => setTimeout(r, 700));
+  const hoverState = await evaluate(() => {
+    const card = document.querySelector('[data-glow-card]');
+    const edge = card.querySelector('.glow-card__edge');
+    const halo = card.querySelector('.glow-card__halo');
+    return {
+      hovered: card.matches(':hover'),
+      transform: getComputedStyle(card).transform,
+      edgeOpacity: Number(getComputedStyle(edge).opacity),
+      haloOpacity: Number(getComputedStyle(halo).opacity),
+      haloBlend: getComputedStyle(halo).mixBlendMode,
+    };
+  });
+  const afterLum = await shotLum();
+  const expectedBlend = theme === 'light' ? 'multiply' : 'screen';
+  const stylesOk =
+    hoverState.hovered &&
+    hoverState.transform !== 'none' &&
+    hoverState.edgeOpacity === 1 &&
+    hoverState.haloOpacity === 1 &&
+    hoverState.haloBlend === expectedBlend;
+  if (theme === 'light') {
+    record(`glowcard:${theme}`, stylesOk && afterLum >= 180, `blend=${hoverState.haloBlend}（期望 multiply）transform/描边/光晕全应用，亮度 ${beforeLum.toFixed(1)}→${afterLum.toFixed(1)}（≥180 无黑块）`);
+  } else {
+    record(`glowcard:${theme}`, stylesOk && afterLum <= 90, `blend=${hoverState.haloBlend}（期望 screen）transform/描边/光晕全应用，亮度 ${beforeLum.toFixed(1)}→${afterLum.toFixed(1)}（≤90 深色内部）`);
+  }
+}
+await glowCardCheck('light');
+await glowCardCheck('dark');
+
+/* 3) blur 组效果：hover 第 1 张时，第 2 张 computed filter/opacity 必须应用 */
+await loadWithTheme('light');
+await page.setViewport({ width: 1280, height: 800 });
+await evaluate(() => document.querySelector('.card-group').scrollIntoView({ block: 'center' }));
+await new Promise((r) => setTimeout(r, 500));
+{
+  const cards = await page.$$('[data-glow-card]');
+  const box1 = await cards[0].boundingBox();
+  await page.mouse.move(10, 10, { steps: 3 });
+  await new Promise((r) => setTimeout(r, 400));
+  await page.mouse.move(box1.x + box1.width / 2, box1.y + box1.height / 2, { steps: 4 });
+  await new Promise((r) => setTimeout(r, 700));
+  const s = await evaluate(() => {
+    const sib = document.querySelectorAll('[data-glow-card]')[1];
+    const cs = getComputedStyle(sib);
+    return { filter: cs.filter, opacity: Number(cs.opacity), hovered: sib.matches(':hover') };
+  });
+  record(
+    'card-group-blur',
+    s.filter.includes('blur(3px)') && s.opacity === 0.55 && !s.hovered,
+    `邻居卡 filter=${s.filter} opacity=${s.opacity} 自身 hover=${s.hovered}`,
+  );
+  await page.mouse.move(10, 500, { steps: 3 });
+}
+
 /* 3 个 spot 实测（D5，记录数据不做修正） */
 await loadWithTheme('light');
 const spots = await evaluate(() =>

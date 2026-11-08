@@ -1,0 +1,44 @@
+/* 正式导航（B2）。fixed 覆盖层；--nav-h 在 tokens.css 定义，B3 的 pin 起点 'top 64px' 与之对齐。 */
+
+.topnav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--nav-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  z-index: 50;
+  background: var(--bg); /* color-mix 不支持时的兜底 */
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.topnav .topnav__brand {
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  font-size: 15px;
+}
+
+.topnav .topnav__switch-slot {
+  display: flex;
+  align-items: center;
+}
+
+/* 进度条：贴导航下缘，scaleX 驱动（不触发 layout） */
+.topnav__progress {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  height: 2px;
+  width: 100%;
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, var(--accent), var(--edge-c2));
+  border-radius: 2px;
+}

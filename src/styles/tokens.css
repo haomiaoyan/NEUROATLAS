@@ -17,6 +17,9 @@
   --glow-blend: multiply;
   --glow-color: rgba(67, 56, 202, 0.08);
   --glow-2: rgba(0, 114, 178, 0.06);
+  /* 卡片描边渐变（浅色：低饱和、克制） */
+  --edge-c1: rgba(67, 56, 202, 0.45);
+  --edge-c2: rgba(0, 114, 178, 0.35);
 }
 
 :root[data-theme='dark'] {
@@ -31,11 +34,17 @@
   --glow-blend: screen;
   --glow-color: rgba(129, 140, 248, 0.16);
   --glow-2: rgba(86, 180, 233, 0.12);
+  /* 卡片描边渐变（深色：更亮） */
+  --edge-c1: rgba(129, 140, 248, 0.75);
+  --edge-c2: rgba(86, 180, 233, 0.6);
 }
 
-/* 数据编码色 —— Okabe-Ito 色盲友好色板，主题无关（D8）。
-   Okabe-Ito 的黑色被省略：深色底上不可见。verify 断言两主题取值相同。 */
+/* 主题无关 */
 :root {
+  --nav-h: 64px; /* TopNav 高度，B3 pin 起点 'top 64px' 与之对齐 */
+
+  /* 数据编码色 —— Okabe-Ito 色盲友好色板，主题无关（D8）。
+     Okabe-Ito 的黑色被省略：深色底上不可见。verify 断言两主题取值相同。 */
   --data-1: #0072b2; /* 蓝 */
   --data-2: #e69f00; /* 橙 */
   --data-3: #009e73; /* 绿 */

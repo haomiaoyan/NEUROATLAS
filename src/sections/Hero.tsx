@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import TechText from '../components/TechText';
 import SwarmCursor from '../components/SwarmCursor';
+import Source from '../components/Source';
 import { useTheme } from '../theme/ThemeProvider';
 import './hero.css';
 
@@ -56,7 +57,7 @@ export default function Hero() {
       <p className="hero__tagline">
         你的头骨里约有 <strong className="hero__num">86,000,000,000</strong> 个神经元——
         每一个都正在和你一起读这行字。
-        <span className="hero__source">（神经元计数：Azevedo et al., 2009，文献估值）</span>
+        <Source>Azevedo et al., 2009，文献估值</Source>
       </p>
     </div>
   );
