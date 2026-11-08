@@ -4,6 +4,8 @@
 
 **在线访问：<https://haomiaoyan.github.io/NEUROATLAS/>**（push 到 main 自动部署）
 
+<img width="2330" height="1268" alt="屏幕截图 2026-11-08 164128" src="https://github.com/user-attachments/assets/b7818c1d-624e-49f6-9504-99678f767385" />
+
 > 你的头骨里约有 86,000,000,000 个神经元——每一个都正在和你一起读这行字。
 
 ## 它是什么 / 不是什么
