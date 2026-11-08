@@ -228,6 +228,40 @@ const attrAfter = await page2.evaluate(() => document.documentElement.dataset.th
 await page2.close();
 record('persist-after-reload', attrAfter === 'dark', `新页面 data-theme=${attrAfter}`);
 
+/* 主题切换后 hero 实际像素（用户报告过 dev 下 hero 背景不跟随的异常，此处为永久回归断言）。
+   当前主页处于 dark（persist 测试后）。 */
+const heroState = () =>
+  evaluate(() => {
+    const bg = getComputedStyle(document.querySelector('[data-hero]')).backgroundColor;
+    const c = document.querySelector('.tech-text-canvas');
+    const ctx = c.getContext('2d');
+    const d = ctx.getImageData(0, 0, c.width, c.height).data;
+    let light = 0, dark = 0;
+    for (let i = 0; i < d.length; i += 16) {
+      if (d[i + 3] > 40) {
+        const lum = 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
+        if (lum > 128) light++; else dark++;
+      }
+    }
+    const m = bg.match(/(\d+),\s*(\d+),\s*(\d+)/);
+    const bgLum = 0.2126 * +m[1] + 0.7152 * +m[2] + 0.0722 * +m[3];
+    return { bgLum, light, dark };
+  });
+const darkHero = await heroState();
+record(
+  'hero-pixels-dark',
+  darkHero.bgLum < 80 && darkHero.light > darkHero.dark * 2,
+  `hero 背景亮度 ${darkHero.bgLum.toFixed(0)}（<80），字形浅色 ${darkHero.light} vs 深色 ${darkHero.dark}`,
+);
+await page.click('.theme-switch');
+await new Promise((r) => setTimeout(r, 900));
+const lightHero = await heroState();
+record(
+  'hero-pixels-light',
+  lightHero.bgLum > 160 && lightHero.dark > lightHero.light * 2,
+  `hero 背景亮度 ${lightHero.bgLum.toFixed(0)}（>160），字形深色 ${lightHero.dark} vs 浅色 ${lightHero.light}`,
+);
+
 /* 375 视口溢出（两主题） */
 for (const theme of THEMES) {
   await loadWithTheme(theme);
