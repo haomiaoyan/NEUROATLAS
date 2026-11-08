@@ -26,6 +26,7 @@
   --circle-transition: 0.3s cubic-bezier(0, -0.02, 0.35, 1.17);
   display: inline-block;
   cursor: pointer;
+  position: relative;
 }
 
 .theme-switch *,
@@ -62,8 +63,17 @@
   border-radius: var(--container-radius);
 }
 
+/* checkbox 不再 display:none + label 转发（React 受控下有双触发竞态），
+   改为透明覆盖层直接命中 input 本体：单次切换路径 + 原生键盘可达 */
 .theme-switch__checkbox {
-  display: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 3;
 }
 
 .theme-switch__circle-container {
@@ -186,11 +196,12 @@
   left: calc(100% - var(--circle-container-offset) - var(--circle-container-diameter));
 }
 
-.theme-switch__checkbox:checked + .theme-switch__container .theme-switch__circle-container:hover {
+.theme-switch__checkbox:checked + .theme-switch__container .theme-switch__circle-container,
+.theme-switch:hover .theme-switch__checkbox:checked + .theme-switch__container .theme-switch__circle-container {
   left: calc(100% - var(--circle-container-offset) - var(--circle-container-diameter) - 0.187em);
 }
 
-.theme-switch__circle-container:hover {
+.theme-switch:hover .theme-switch__circle-container {
   left: calc(var(--circle-container-offset) + 0.187em);
 }
 
