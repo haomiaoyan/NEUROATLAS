@@ -10,11 +10,15 @@ description: Use when building or fixing a multi-chapter scrollytelling / intera
 **先问清 → 出计划 → 独立审核 → 自核实 → 实测校正 → 分批实施 → 每批可部署。**
 任何「不卡顿」「观感好」这类无法脚本判定的验收语都是禁区：每条验收标准必须能被无头浏览器断言。
 
-本 skill 的 4 个组成部分：
+本 skill 的 6 个组成部分：
 - 本文件：七阶段流程 + 提问清单 + 审核模板 + 汇报格式
 - `references/verify-recipes.md`：13 种运行时测量技术 + 坐标/管线陷阱
 - `references/pitfalls.md`：22 条实测坑（现象→根因→修复→通用规则）
+- `references/animation-components.md`：第三方 canvas 组件的集成套路（缓存键 / cleanup / 挂载条件 / 停帧验收）
+- `references/content-sourcing.md`：数字必须有出处或明确标教学示意（科普/医学/数据类必读）
 - `assets/`：`long-stage.tsx` + `long-stage.css`（长舞台三层结构）、`tokens.css`（双主题）、`verify-skeleton.mjs.md`（验收脚本骨架）
+
+**触发即读的对应关系**：要接第三方动画组件 → 读 animation-components；页面有具体数字/科学结论 → 读 content-sourcing；其余按阶段顺序读。
 
 ---
 
