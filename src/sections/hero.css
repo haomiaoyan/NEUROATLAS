@@ -56,17 +56,4 @@
   margin-top: 6px;
 }
 
-/* D7：首屏边界声明条（正式版，B5）。
-   margin-top:auto：swarm 是绝对定位不参与 flex，boundary 是唯一流内子项，
-   不加 auto 会被放到 hero 顶部（实测翻过车）。 */
-.hero__boundary {
-  position: relative;
-  z-index: 1;
-  margin: auto 0 0;
-  padding: 10px 24px;
-  text-align: center;
-  font-size: 13px;
-  color: var(--ink-2);
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-}
+/* 声明条已按用户要求移除（B5 末），声明改由 Outro「它是什么/不是什么」承担 */

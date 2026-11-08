@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import TechText from '../components/TechText';
 import SwarmCursor from '../components/SwarmCursor';
-import Source from '../components/Source';
 import { useTheme } from '../theme/ThemeProvider';
 import './hero.css';
 
@@ -57,7 +56,6 @@ export default function Hero() {
       <p className="hero__tagline">
         你的头骨里约有 <strong className="hero__num">86,000,000,000</strong> 个神经元——
         每一个都正在和你一起读这行字。
-        <Source>Azevedo et al., 2009，文献估值</Source>
       </p>
     </div>
   );
@@ -77,10 +75,6 @@ export default function Hero() {
       ) : (
         <div className="hero__swarm">{inner}</div>
       )}
-      {/* D7：边界声明条——首屏可见位置，不是页脚小字 */}
-      <p className="hero__boundary" data-boundary>
-        本站为课程教学演示，内容基于公开文献但不构成医疗建议 · 各章节数字旁附出处
-      </p>
     </section>
   );
 }

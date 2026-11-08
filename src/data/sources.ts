@@ -50,6 +50,12 @@ export const FACTS: Fact[] = [
     source: { name: 'Raichle & Gusnard, PNAS', year: '2002', kind: 'literature' },
   },
   {
+    id: 'action-potential-values',
+    value: '-70 / -55 / +30 mV',
+    label: '静息电位、发射阈值与动作电位峰值（教科书通行值）',
+    source: { name: 'Kandel, Principles of Neural Science, 5th ed.', kind: 'literature' },
+  },
+  {
     id: 'signal-speed',
     value: '120 m/s',
     label: '有髓轴突最高传导速度',

@@ -1,11 +1,22 @@
 import { useEffect, useRef } from 'react';
+import PillNav from './PillNav';
 import ThemeSwitch from './ThemeSwitch';
+import { useTheme } from '../theme/ThemeProvider';
 import './topnav.css';
 
-/** 正式导航（B2）。fixed 覆盖在 hero 之上，毛玻璃底；进度条贴导航下缘。
-    进度用 scroll+rAF 计算（不经过 ScrollTrigger，规避坑 #6 的文档高度缓存）。
-    类名全部 .topnav .topnav__xxx 形式（坑 #9：裸类名会被 .topnav a 压过）。 */
+const ITEMS = [
+  { label: '信号', href: '#signal' },
+  { label: '突触', href: '#synapse' },
+  { label: '地图', href: '#map' },
+  { label: '记忆', href: '#memory' },
+  { label: 'GitHub', href: 'https://github.com/haomiaoyan/NEUROATLAS' },
+];
+
+/** 悬浮胶囊导航（B5 用户指定样式，PillNav 源码集成）。
+    进度条独立于胶囊、固定在视口最上缘（scroll+rAF，规避坑 #6）。
+    GitHub 项指向精确仓库地址（用户反馈 #1：不能跳到总主页）。 */
 export default function TopNav() {
+  const { theme } = useTheme();
   const barRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -30,12 +41,20 @@ export default function TopNav() {
   }, []);
 
   return (
-    <header className="topnav">
-      <span className="topnav__brand">NEUROATLAS</span>
-      <span className="topnav__switch-slot">
+    <>
+      <div className="progress-bar" ref={barRef} aria-hidden="true" />
+      <div className="navhost" data-nav>
+        <PillNav
+          logo={<span className="navhost__brand">NEUROATLAS</span>}
+          logoHref="#"
+          items={ITEMS}
+          theme={theme}
+          ariaLabel="站点导航"
+        />
+      </div>
+      <div className="navhost__switch">
         <ThemeSwitch />
-      </span>
-      <div className="topnav__progress" ref={barRef} aria-hidden="true" />
-    </header>
+      </div>
+    </>
   );
 }

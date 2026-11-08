@@ -6,13 +6,13 @@ export default function SocialLinks() {
   return (
     <ul className="social">
       <li className="social__item">
-        <span className="social__tooltip">源码仓库</span>
+        <span className="social__tooltip">本项目源码</span>
         <a
           className="social__link"
-          href="https://github.com/haomiaoyan"
+          href="https://github.com/haomiaoyan/NEUROATLAS"
           target="_blank"
           rel="noreferrer"
-          aria-label="GitHub 源码仓库"
+          aria-label="GitHub 项目仓库"
         >
           <span className="social__filled" aria-hidden="true" />
           <svg className="social__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

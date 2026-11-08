@@ -280,7 +280,7 @@ await page.setViewport({ width: 1280, height: 800 });
 /* 1) 进度条：顶部 scaleX≈0，滚动到底 ≈1（读 transform 矩阵） */
 const readProgress = () =>
   evaluate(() => {
-    const t = getComputedStyle(document.querySelector('.topnav__progress')).transform;
+    const t = getComputedStyle(document.querySelector('.progress-bar')).transform;
     const m = /matrix\(([^)]+)\)/.exec(t);
     return m ? Number(m[1].split(',')[0]) : -1;
   });
@@ -305,10 +305,11 @@ record(
 async function glowCardCheck(theme) {
   await loadWithTheme(theme);
   await page.setViewport({ width: 1280, height: 800 });
-  await evaluate(() => document.querySelector('.card-group').scrollIntoView({ block: 'center' }));
+  await evaluate(() => document.querySelector('.card-group').scrollIntoView({ block: 'center', behavior: 'instant' }));
   await new Promise((r) => setTimeout(r, 500));
   const box = await (await page.$('[data-glow-card]')).boundingBox();
-  const clip = { x: Math.round(box.x - 12), y: Math.round(box.y - 12), width: Math.round(box.width + 24), height: Math.round(box.height + 24) };
+  const syG = await evaluate(() => window.scrollY); /* boundingBox 视口坐标 → screenshot clip 页面坐标 */
+  const clip = { x: Math.round(box.x - 12), y: Math.round(box.y - 12 + syG), width: Math.round(box.width + 24), height: Math.round(box.height + 24) };
   const shotLum = async () => {
     const b64 = await page.screenshot({ encoding: 'base64', clip });
     return evaluate(async (src) => {
@@ -366,7 +367,7 @@ await glowCardCheck('dark');
 /* 3) blur 组效果：hover 第 1 张时，第 2 张 computed filter/opacity 必须应用 */
 await loadWithTheme('light');
 await page.setViewport({ width: 1280, height: 800 });
-await evaluate(() => document.querySelector('.card-group').scrollIntoView({ block: 'center' }));
+await evaluate(() => document.querySelector('.card-group').scrollIntoView({ block: 'center', behavior: 'instant' }));
 await new Promise((r) => setTimeout(r, 500));
 {
   const cards = await page.$$('[data-glow-card]');
@@ -487,9 +488,14 @@ await page.setViewport({ width: 1280, height: 800 });
 
   const honest = await evaluate(() => ({
     illustrative: document.body.textContent.includes('教学示意'),
-    sources: document.body.textContent.includes('出处'),
+    refs: Boolean(document.querySelector('.outro__refs')),
+    refsTitle: document.body.textContent.includes('参考资料'),
   }));
-  record('source-honesty', honest.illustrative && honest.sources, `「教学示意」与出处标注均出现在页面中（D7）`);
+  record(
+    'source-honesty',
+    honest.illustrative && honest.refs && honest.refsTitle,
+    `「教学示意」标识与文末「参考资料」区块均存在（D7，B5 起出处集中文末）`,
+  );
 }
 
 /* ===================== B5 · 边界声明 / Outro / 收尾 ===================== */
@@ -498,22 +504,9 @@ await page.setViewport({ width: 1280, height: 800 });
 await evaluate(() => window.scrollTo(0, 0)); /* 同 URL goto 会恢复滚动位置，显式回顶 */
 await new Promise((r) => setTimeout(r, 600));
 {
-  /* 首屏边界声明：可见且在首屏内（D7：不是页脚小字） */
-  const bd = await evaluate(() => {
-    const el = document.querySelector('[data-boundary]');
-    if (!el) return null;
-    const r = el.getBoundingClientRect();
-    return { top: r.top, h: r.height, text: el.textContent.includes('不构成医疗建议') };
-  });
-  record(
-    'boundary-first-screen',
-    Boolean(bd && bd.text && bd.top > 0 && bd.top < 800 && bd.h >= 30),
-    `声明条 top=${bd?.top?.toFixed(0)}（首屏内）含「不构成医疗建议」=${bd?.text}`,
-  );
-
-  /* 标题几何：TechText 画布必须完整在固定导航之下（B5 曾回归：inner 塌高后标题被导航裁切） */
+  /* 标题几何：TechText 画布必须完整在悬浮导航之下（B5 曾回归：inner 塌高后标题被导航裁切） */
   const geo = await evaluate(() => {
-    const nav = document.querySelector('.topnav').getBoundingClientRect();
+    const nav = document.querySelector('[data-nav]').getBoundingClientRect();
     const c = document.querySelector('.tech-text-canvas').getBoundingClientRect();
     const hero = document.querySelector('[data-hero]').getBoundingClientRect();
     const centerRatio = (c.top + c.height / 2 - hero.top) / hero.height;
@@ -525,20 +518,20 @@ await new Promise((r) => setTimeout(r, 600));
     `标题画布顶 ${geo.canvasTop.toFixed(0)} ≥ 导航底 ${geo.navBottom.toFixed(0)}，中心位于 hero 高度 ${geo.centerRatio.toFixed(2)} 处（0.3-0.7 居中带）`,
   );
 
-  /* Outro：声明两栏 + 出处汇总 8 条 + 社交入口 */
+  /* Outro：声明两栏 + 参考资料 9 条 + 社交入口 */
   const outro = await evaluate(() => {
     const o = document.querySelector('#outro');
     if (!o) return null;
     return {
       text: o.textContent.includes('不是医疗建议') && o.textContent.includes('它是什么'),
-      sourceItems: o.querySelectorAll('.outro__sources li').length,
+      refItems: o.querySelectorAll('.outro__refs li').length,
       social: Boolean(o.querySelector('.social')),
     };
   });
   record(
     'outro-complete',
-    Boolean(outro && outro.text && outro.sourceItems === 8 && outro.social),
-    `声明双栏=${outro?.text} 出处条目=${outro?.sourceItems}（=8） 社交入口=${outro?.social}`,
+    Boolean(outro && outro.text && outro.refItems === 9 && outro.social),
+    `声明双栏=${outro?.text} 参考资料条目=${outro?.refItems}（=9） 社交入口=${outro?.social}`,
   );
 
   /* 章节目录锚点都指向存在的 id */
@@ -549,6 +542,14 @@ await new Promise((r) => setTimeout(r, 600));
     }),
   );
   record('index-anchors', anchors.length === 3 && anchors.every(Boolean), `3 个目录卡全部指向存在的章节 id`);
+
+  /* 导航 GitHub 链接指向精确仓库（用户反馈：不能跳到总主页） */
+  const navGh = await evaluate(() =>
+    [...document.querySelectorAll('[data-nav] a[href]')].some(
+      (a) => a.getAttribute('href') === 'https://github.com/haomiaoyan/NEUROATLAS',
+    ),
+  );
+  record('nav-github-link', navGh, '导航含指向 github.com/haomiaoyan/NEUROATLAS 的条目');
 }
 
 /* 3 个 spot 实测（D5，记录数据不做修正） */

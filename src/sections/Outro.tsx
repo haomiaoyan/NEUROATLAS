@@ -2,7 +2,7 @@ import SocialLinks from '../components/SocialLinks';
 import { FACTS } from '../data/sources';
 import './outro.css';
 
-/** Outro（B5）：边界声明（D7，显眼位置）+ 全部出处汇总 + 社交入口。 */
+/** Outro（B5 修订）：「它是什么/不是什么」声明 + 文末参考资料（用户要求：行内出处删除，出处集中文末）。 */
 export default function Outro() {
   return (
     <footer className="outro" id="outro">
@@ -14,7 +14,7 @@ export default function Outro() {
             <h3>它是什么</h3>
             <p>
               一份前端课程的教学演示作品：用可交互的可视化讲解神经信号的基础知识。
-              所有图形均为示意，不追求科研级精确；每个数字旁都标了出处或「教学示意」。
+              所有图形均为示意，不追求科研级精确。
             </p>
           </div>
           <div className="outro__col">
@@ -26,19 +26,24 @@ export default function Outro() {
           </div>
         </div>
 
-        <details className="outro__sources">
-          <summary>全部数据出处（{FACTS.length} 条）</summary>
-          <ul>
+        <section className="outro__refs" aria-label="参考资料">
+          <h3 className="outro__refs-title">参考资料</h3>
+          <ol>
             {FACTS.map((f) => (
               <li key={f.id}>
                 <strong>{f.value}</strong> — {f.label}。
-                {f.source.kind === 'illustrative' ? '教学示意：' : ''}
-                {f.source.name}
-                {f.source.year ? `，${f.source.year}` : ''}。
+                {f.source.kind === 'illustrative' ? (
+                  <em>教学示意（{f.source.name}）。</em>
+                ) : (
+                  <span>
+                    {f.source.name}
+                    {f.source.year ? `，${f.source.year}` : ''}。
+                  </span>
+                )}
               </li>
             ))}
-          </ul>
-        </details>
+          </ol>
+        </section>
 
         <div className="outro__social">
           <SocialLinks />

@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Source from '../components/Source';
 import './signal-stage.css';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -159,14 +158,14 @@ export default function SignalStage() {
   }, []);
 
   return (
-    <section className="stage-section" ref={sectionRef} data-stage>
+    <section className="stage-section" id="signal" ref={sectionRef} data-stage>
       <div className="stage-pin">
         <div className="stage-window">
           <header className="stage-head stage-fade">
             <p className="stage-kicker">CHAPTER 01</p>
             <h2 className="stage-title">一颗粒子的极速狂奔</h2>
             <p className="stage-sub">
-              从「静息」到「发射」，一次动作电位只用约 1 毫秒。<Source>Kandel, Principles of Neural Science（教科书通行值，示意）</Source>
+              从「静息」到「发射」，一次动作电位只用约 1 毫秒——文献出处见页尾「参考资料」。
             </p>
             <span className="stage-counter" ref={counterRef} aria-hidden="true">
               01 / 05

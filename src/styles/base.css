@@ -8,6 +8,14 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  scroll-padding-top: 84px; /* 固定悬浮导航下的锚点偏移 */
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 body {
