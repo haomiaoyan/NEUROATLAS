@@ -1,6 +1,6 @@
 ---
 name: visual-narrative-site
-description: Use when building or fixing a multi-chapter scrollytelling / interactive visualization website (React+Vite+GSAP, canvas/WebGL hero, long pinned horizontal stage, light/dark themes) and the deliverable must pass script-verifiable acceptance (no horizontal overflow, WCAG contrast, 60fps, reduced-motion, evidence-cited claims) — includes gating interview, plan review, measurement recipes and a 20-item pitfall catalog.
+description: Use when building or fixing a multi-chapter scrollytelling / interactive visualization website (React+Vite+GSAP, canvas/WebGL hero, long pinned horizontal stage, light/dark themes) and the deliverable must pass script-verifiable acceptance (no horizontal overflow, WCAG contrast, 60fps, reduced-motion, evidence-cited claims) — includes gating interview, plan review, measurement recipes and a 22-item pitfall catalog.
 ---
 
 # 可视化叙事网站交付
