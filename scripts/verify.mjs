@@ -518,6 +518,19 @@ await new Promise((r) => setTimeout(r, 600));
     `标题画布顶 ${geo.canvasTop.toFixed(0)} ≥ 导航底 ${geo.navBottom.toFixed(0)}，中心位于 hero 高度 ${geo.centerRatio.toFixed(2)} 处（0.3-0.7 居中带）`,
   );
 
+  /* 副标单行（用户要求）：桌面视口下 tagline 不换行 */
+  const tagline = await evaluate(() => {
+    const el = document.querySelector('.hero__tagline');
+    const r = el.getBoundingClientRect();
+    const fs = parseFloat(getComputedStyle(el).fontSize);
+    return { h: r.height, lines: Math.round(r.height / (fs * 1.6)) };
+  });
+  record(
+    'tagline-single-line',
+    tagline.lines === 1,
+    `副标行数=${tagline.lines}（高度 ${tagline.h.toFixed(0)}px）`,
+  );
+
   /* Outro：声明两栏 + 参考资料 9 条 + 社交入口 */
   const outro = await evaluate(() => {
     const o = document.querySelector('#outro');

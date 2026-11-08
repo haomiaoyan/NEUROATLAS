@@ -38,9 +38,16 @@
 
 .hero__tagline {
   color: var(--ink-2);
-  font-size: clamp(16px, 2.2vw, 20px);
-  max-width: 34em;
-  text-wrap: pretty;
+  /* 单行呈现（用户要求）：字号随视口缩放保证 ≥768px 时不换行；小屏恢复正常换行防溢出 */
+  font-size: clamp(15px, 1.6vw, 20px);
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  .hero__tagline {
+    white-space: normal;
+    text-wrap: pretty;
+  }
 }
 
 .hero__num {
