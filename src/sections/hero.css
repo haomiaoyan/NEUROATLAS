@@ -17,7 +17,9 @@
 .hero__inner {
   position: relative;
   z-index: 1;
-  flex: 1;
+  /* 高度 100%：父级是 SwarmCursor 的内容层（普通 div，非 flex），flex:1 无效
+     （B5 改 flex:1 曾导致 inner 塌成内容高度、标题顶到导航下被裁，verify 已加几何断言） */
+  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;

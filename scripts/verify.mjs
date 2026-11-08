@@ -511,6 +511,20 @@ await new Promise((r) => setTimeout(r, 600));
     `声明条 top=${bd?.top?.toFixed(0)}（首屏内）含「不构成医疗建议」=${bd?.text}`,
   );
 
+  /* 标题几何：TechText 画布必须完整在固定导航之下（B5 曾回归：inner 塌高后标题被导航裁切） */
+  const geo = await evaluate(() => {
+    const nav = document.querySelector('.topnav').getBoundingClientRect();
+    const c = document.querySelector('.tech-text-canvas').getBoundingClientRect();
+    const hero = document.querySelector('[data-hero]').getBoundingClientRect();
+    const centerRatio = (c.top + c.height / 2 - hero.top) / hero.height;
+    return { navBottom: nav.bottom, canvasTop: c.top, centerRatio, heroH: hero.height };
+  });
+  record(
+    'title-geometry',
+    geo.canvasTop >= geo.navBottom && geo.centerRatio > 0.3 && geo.centerRatio < 0.7,
+    `标题画布顶 ${geo.canvasTop.toFixed(0)} ≥ 导航底 ${geo.navBottom.toFixed(0)}，中心位于 hero 高度 ${geo.centerRatio.toFixed(2)} 处（0.3-0.7 居中带）`,
+  );
+
   /* Outro：声明两栏 + 出处汇总 8 条 + 社交入口 */
   const outro = await evaluate(() => {
     const o = document.querySelector('#outro');
