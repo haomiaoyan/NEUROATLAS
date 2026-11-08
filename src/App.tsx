@@ -1,6 +1,7 @@
+import Hero from './sections/Hero';
 import ThemeSwitch from './components/ThemeSwitch';
 
-/** B0 临时页面：双主题验收载体。B1 起逐步替换为 Hero/TopNav。 */
+/** B0/B1 过渡期页面：Hero + 下方保留验收锚点（对比度段落、数据色板）。 */
 export default function App() {
   return (
     <>
@@ -10,12 +11,12 @@ export default function App() {
           <ThemeSwitch />
         </span>
       </header>
+      <Hero />
       <main className="b0-main">
-        <h1 className="b0-title">860 亿个神经元，正在读这一行字。</h1>
         <p className="b0-body" data-contrast="body">
-          这是 B0 批次的临时验收页：只验证双主题系统、主题切换开关与验收工具链。
-          正文对比度断言取本段计算样式（--ink-2 对实际背景）。
-          数据出处：Azevedo et al., 2009（神经元数量为文献估值）。
+          章节施工中（B3-B4）。本段为验收锚点：正文对比度断言取本段计算样式（--ink-2 对实际背景）。
+          神经元之间平均每个有约 7,000 个突触连接，全脑连接总量在百万亿量级——
+          这个数字没有单篇论文能精确给出，属于「教学示意」级别（出处系统在 B4 上线）。
         </p>
         <div
           className="b0-swatches"

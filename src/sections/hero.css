@@ -1,0 +1,57 @@
+/* Hero（B1）。全宽层用 --sbw 方案是 B3 长舞台的事，hero 是普通流内块，天然无 100vw 问题。 */
+
+.hero {
+  position: relative;
+  height: clamp(480px, 86svh, 860px);
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.hero__swarm {
+  position: absolute;
+  inset: 0;
+}
+
+.hero__inner {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+  color: var(--ink); /* TechText currentColor 由此继承 */
+}
+
+.hero__title {
+  height: clamp(140px, 24vw, 220px);
+  color: var(--ink);
+}
+
+.hero__tagline {
+  color: var(--ink-2);
+  font-size: clamp(16px, 2.2vw, 20px);
+  max-width: 34em;
+  text-wrap: pretty;
+}
+
+.hero__num {
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.hero__source {
+  display: block;
+  font-size: 0.78em;
+  opacity: 0.85;
+  margin-top: 6px;
+}
+
+/* D11：边界声明占位（B5 填正式内容），保证 B1 实测的 hero 高度不被后续内容挤压 */
+.hero__boundary {
+  height: 40px;
+}

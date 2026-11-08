@@ -253,6 +253,104 @@ record(
   `3 个 spot 实测: ${JSON.stringify(spots)}`,
 );
 
+/* ===================== B1 · Hero ===================== */
+
+/* 截图 → 页内解码 → 统计与 hero 背景差异超阈值的像素数。
+   页内解码的原因：SwarmCursor 未开 preserveDrawingBuffer，readPixels 只会读到空缓冲（11111.md:1611-1617）。 */
+async function countHeroPixels() {
+  const hero = await page.$('[data-hero]');
+  const box = await hero.boundingBox();
+  const b64 = await page.screenshot({ encoding: 'base64', clip: box });
+  return evaluate(async (src) => {
+    const img = new Image();
+    img.src = 'data:image/png;base64,' + src;
+    await img.decode();
+    const c = document.createElement('canvas');
+    c.width = img.width;
+    c.height = img.height;
+    const ctx = c.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    const d = ctx.getImageData(0, 0, c.width, c.height).data;
+    const bg = getComputedStyle(document.querySelector('[data-hero]')).backgroundColor;
+    const m = bg.match(/(\d+),\s*(\d+),\s*(\d+)/);
+    const br = +m[1], bgc = +m[2], bb = +m[3];
+    let n = 0;
+    for (let i = 0; i < d.length; i += 4) {
+      if (Math.abs(d[i] - br) + Math.abs(d[i + 1] - bgc) + Math.abs(d[i + 2] - bb) > 24) n++;
+    }
+    return n;
+  }, b64);
+}
+
+for (const theme of THEMES) {
+  await loadWithTheme(theme);
+  await page.setViewport({ width: 1280, height: 800 });
+  await new Promise((r) => setTimeout(r, 800)); /* 等 intro 粒子就位 */
+
+  /* 1) hero 画布有内容（SwarmCursor + TechText 常驻字形） */
+  const px = await countHeroPixels();
+  record(`hero-content:${theme}`, px >= 1500, `hero 非背景像素 ${px}（≥1500）`);
+
+  /* 2) 交互期帧率：CDP 鼠标在 hero 内走利萨茹轨迹 10s，rAF 间隔弃前 1s 取中位数 ≤33ms */
+  await evaluate(() => {
+    window.__raf = [];
+    const loop = (t) => {
+      window.__raf.push(t);
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+  });
+  const heroBox = await (await page.$('[data-hero]')).boundingBox();
+  const cx = heroBox.x + heroBox.width / 2;
+  const cy = heroBox.y + heroBox.height / 2;
+  const rx = Math.min(300, heroBox.width * 0.3);
+  const ry = Math.min(160, heroBox.height * 0.25);
+  for (let i = 0; i < 100; i++) {
+    const a = (i / 100) * Math.PI * 4;
+    await page.mouse.move(cx + rx * Math.sin(a), cy + ry * Math.sin(2 * a), { steps: 2 });
+    await new Promise((r) => setTimeout(r, 100));
+  }
+  const stats = await evaluate(() => {
+    const ts = window.__raf;
+    const cutoff = ts[0] + 1000;
+    const gaps = [];
+    for (let i = 1; i < ts.length; i++) {
+      if (ts[i] >= cutoff) gaps.push(ts[i] - ts[i - 1]);
+    }
+    gaps.sort((a, b) => a - b);
+    return { n: gaps.length, median: gaps.length ? gaps[Math.floor(gaps.length / 2)] : -1 };
+  });
+  record(
+    `raf-median:${theme}`,
+    stats.median > 0 && stats.median <= 33 && stats.n >= 300,
+    `${stats.n} 帧，中位间隔 ${stats.median}ms（≤33ms）`,
+  );
+
+  /* 3) TechText 指针离开后停帧：先证明在动，再证明停了（2D canvas 可 toDataURL） */
+  await page.mouse.move(cx, cy, { steps: 4 });
+  const snapA = await evaluate(() => document.querySelector('.tech-text-canvas').toDataURL());
+  await new Promise((r) => setTimeout(r, 300));
+  const snapB = await evaluate(() => document.querySelector('.tech-text-canvas').toDataURL());
+  record(`techtext-animating:${theme}`, snapA !== snapB, '指针在场时 TechText 在重绘');
+
+  await page.mouse.move(5, 5, { steps: 6 }); /* 移出 hero（到顶部导航区） */
+  await new Promise((r) => setTimeout(r, 1600)); /* 等 settling 收敛（plan 预算 500ms + 裕量） */
+  const idleA = await evaluate(() => document.querySelector('.tech-text-canvas').toDataURL());
+  await new Promise((r) => setTimeout(r, 400));
+  const idleB = await evaluate(() => document.querySelector('.tech-text-canvas').toDataURL());
+  record(`techtext-idle-stop:${theme}`, idleA === idleB, '指针离开后 TechText 停帧（画面冻结）');
+
+  /* 4) 滚动往返无残留：hero 仍正常有粒子内容 */
+  await evaluate(() => window.scrollTo(0, 2000));
+  await new Promise((r) => setTimeout(r, 400));
+  await evaluate(() => window.scrollTo(0, 0));
+  await new Promise((r) => setTimeout(r, 600));
+  const pxAfter = await countHeroPixels();
+  record(`scroll-residue:${theme}`, pxAfter >= 1500, `往返后 hero 非背景像素 ${pxAfter}（≥1500）`);
+}
+
+await page.setViewport({ width: 1280, height: 800 });
+
 await browser.close();
 server.kill();
 
