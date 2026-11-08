@@ -445,8 +445,27 @@ record(
   const rm = await rmPage.evaluate(() => ({
     hasHook: Boolean(window.__stage),
     pinCount: window.__stage ? window.__stage().pinCount : 0,
+    ntAnimMs: parseFloat(getComputedStyle(document.querySelector('.sy-nt')).animationDuration) * 1000,
+    chapterText: ['synapse', 'map', 'memory'].map(
+      (id) => (document.getElementById(id)?.textContent || '').length,
+    ),
   }));
-  record('stage-reduced-motion', !rm.hasHook && rm.pinCount === 0, `pin 数=${rm.pinCount}（应为 0）`);
+  const infoIntact = rm.chapterText.every((n) => n > 100);
+  record(
+    'stage-reduced-motion',
+    !rm.hasHook && rm.pinCount === 0,
+    `pin 数=${rm.pinCount}（应为 0）`,
+  );
+  record(
+    'reduced-motion-static',
+    rm.ntAnimMs < 0.5,
+    `递质动画时长=${rm.ntAnimMs}ms（<0.5ms = 全站动效停，base.css 全局兜底）`,
+  );
+  record(
+    'reduced-motion-info-intact',
+    infoIntact,
+    `reduced-motion 下三章节文本量 ${rm.chapterText.join('/')}（信息一条不少，§四.4）`,
+  );
   await rmPage.close();
 }
 
@@ -471,6 +490,51 @@ await page.setViewport({ width: 1280, height: 800 });
     sources: document.body.textContent.includes('出处'),
   }));
   record('source-honesty', honest.illustrative && honest.sources, `「教学示意」与出处标注均出现在页面中（D7）`);
+}
+
+/* ===================== B5 · 边界声明 / Outro / 收尾 ===================== */
+await loadWithTheme('light');
+await page.setViewport({ width: 1280, height: 800 });
+await evaluate(() => window.scrollTo(0, 0)); /* 同 URL goto 会恢复滚动位置，显式回顶 */
+await new Promise((r) => setTimeout(r, 600));
+{
+  /* 首屏边界声明：可见且在首屏内（D7：不是页脚小字） */
+  const bd = await evaluate(() => {
+    const el = document.querySelector('[data-boundary]');
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
+    return { top: r.top, h: r.height, text: el.textContent.includes('不构成医疗建议') };
+  });
+  record(
+    'boundary-first-screen',
+    Boolean(bd && bd.text && bd.top > 0 && bd.top < 800 && bd.h >= 30),
+    `声明条 top=${bd?.top?.toFixed(0)}（首屏内）含「不构成医疗建议」=${bd?.text}`,
+  );
+
+  /* Outro：声明两栏 + 出处汇总 8 条 + 社交入口 */
+  const outro = await evaluate(() => {
+    const o = document.querySelector('#outro');
+    if (!o) return null;
+    return {
+      text: o.textContent.includes('不是医疗建议') && o.textContent.includes('它是什么'),
+      sourceItems: o.querySelectorAll('.outro__sources li').length,
+      social: Boolean(o.querySelector('.social')),
+    };
+  });
+  record(
+    'outro-complete',
+    Boolean(outro && outro.text && outro.sourceItems === 8 && outro.social),
+    `声明双栏=${outro?.text} 出处条目=${outro?.sourceItems}（=8） 社交入口=${outro?.social}`,
+  );
+
+  /* 章节目录锚点都指向存在的 id */
+  const anchors = await evaluate(() =>
+    [...document.querySelectorAll('.index__link')].map((a) => {
+      const id = a.getAttribute('href').slice(1);
+      return Boolean(document.getElementById(id));
+    }),
+  );
+  record('index-anchors', anchors.length === 3 && anchors.every(Boolean), `3 个目录卡全部指向存在的章节 id`);
 }
 
 /* 3 个 spot 实测（D5，记录数据不做修正） */
@@ -560,8 +624,10 @@ for (const theme of THEMES) {
     `${stats.n} 帧，中位间隔 ${stats.median}ms（≤33ms）`,
   );
 
-  /* 3) TechText 指针离开后停帧：先证明在动，再证明停了（2D canvas 可 toDataURL） */
-  await page.mouse.move(cx, cy, { steps: 4 });
+  /* 3) TechText 指针离开后停帧：先证明在动，再证明停了（2D canvas 可 toDataURL）。
+      鼠标点用 TechText 画布自身中心——hero 中心会落在标题画布之外（B5 加声明条后布局变化） */
+  const techBox = await (await page.$('.tech-text-canvas')).boundingBox();
+  await page.mouse.move(techBox.x + techBox.width / 2, techBox.y + techBox.height / 2, { steps: 4 });
   const snapA = await evaluate(() => document.querySelector('.tech-text-canvas').toDataURL());
   await new Promise((r) => setTimeout(r, 300));
   const snapB = await evaluate(() => document.querySelector('.tech-text-canvas').toDataURL());

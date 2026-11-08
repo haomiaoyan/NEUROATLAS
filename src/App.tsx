@@ -3,12 +3,12 @@ import SignalStage from './sections/SignalStage';
 import SynapseSection from './sections/SynapseSection';
 import MapSection from './sections/MapSection';
 import MemorySection from './sections/MemorySection';
+import Outro from './sections/Outro';
 import TopNav from './components/TopNav';
 import GlowCard from './components/GlowCard';
-import SocialLinks from './components/SocialLinks';
 import Source from './components/Source';
 
-/** B4 页面：TopNav + Hero + 长舞台 + 三个内容章节 + 组件验收区。 */
+/** B5 页面：完整站点。锚点段（对比度/色板）保留在目录区供 verify 使用。 */
 export default function App() {
   return (
     <>
@@ -18,39 +18,42 @@ export default function App() {
       <SynapseSection />
       <MapSection />
       <MemorySection />
-      <main className="b0-main">
-        <h2 className="b0-h2">三个章节，正在路上</h2>
-        <p className="b0-body" data-contrast="body">
-          本段为验收锚点：正文对比度断言取本段计算样式（--ink-2 对实际背景）。
-          神经元之间平均每个有约 7,000 个突触连接，全脑连接总量在百万亿量级
-          <Source>教学示意，非精确文献值</Source>
+      <main className="index">
+        <h2 className="index__title">漏掉了？从这里挑一章</h2>
+        <p className="index__body" data-contrast="body">
+          章节可以随时跳转。本段同时是验收锚点：正文对比度断言取本段计算样式（--ink-2 对实际背景）。
+          突触连接总数在百万亿量级，但没有任何单篇文献能精确给出——这类数字在本站一律标「教学示意」
+          <Source>量级估算，无单篇文献</Source>
         </p>
         <div className="card-group">
-          <GlowCard title="电信号 · 8.3 任务">
-            一个动作电位如何沿着轴突以最高 120 m/s 的速度奔跑——长舞台章节将把它拉成一条可以横向
-            巡览的「信号跑道」。
-          </GlowCard>
-          <GlowCard title="突触 · 百万亿连接" accent="2">
-            每个神经元平均与约 7,000 个同伴相连。连接的强弱如何变化，就是「学习」在物理世界的样子。
-          </GlowCard>
-          <GlowCard title="记忆 · 如何留下痕迹" accent="3">
-            你昨天的记忆此刻存在于哪里？海马体如何把短期印象转写成皮层里的长期档案。
-          </GlowCard>
-        </div>
-        <div className="b0-social-row">
-          <SocialLinks />
+          <a className="index__link" href="#synapse">
+            <GlowCard title="CHAPTER 02 · 突触">
+              电信号换成化学语言的地方。7,000 个连接点与百万亿量级的总图景。
+            </GlowCard>
+          </a>
+          <a className="index__link" href="#map">
+            <GlowCard title="CHAPTER 03 · 大脑地图" accent="2">
+              谁在负责什么：皮层 160 亿神经元的分区地图，以及 20% 的能量账单。
+            </GlowCard>
+          </a>
+          <a className="index__link" href="#memory">
+            <GlowCard title="CHAPTER 04 · 记忆" accent="3">
+              突触强度如何改变，H.M. 的手术如何证明海马体是转写员。
+            </GlowCard>
+          </a>
         </div>
         <div
-          className="b0-swatches"
+          className="index__swatches"
           data-viz
           role="img"
           aria-label="Okabe-Ito 数据编码色板示例：七个色块，主题切换时不变"
         >
           {[1, 2, 3, 4, 5, 6, 7].map((i) => (
-            <span key={i} className={`b0-swatch b0-swatch--${i}`} aria-hidden="true" />
+            <span key={i} className={`index__swatch index__swatch--${i}`} aria-hidden="true" />
           ))}
         </div>
       </main>
+      <Outro />
     </>
   );
 }

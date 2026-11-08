@@ -77,8 +77,10 @@ export default function Hero() {
       ) : (
         <div className="hero__swarm">{inner}</div>
       )}
-      {/* D11：边界声明条占位，B5 替换为正式声明 */}
-      <div className="hero__boundary" data-boundary-placeholder />
+      {/* D7：边界声明条——首屏可见位置，不是页脚小字 */}
+      <p className="hero__boundary" data-boundary>
+        本站为课程教学演示，内容基于公开文献但不构成医疗建议 · 各章节数字旁附出处
+      </p>
     </section>
   );
 }

@@ -1,21 +1,21 @@
-/* B2 过渡期页面样式。.topnav 系列已迁至 components/topnav.css。 */
+/* 章节目录 + 验收锚点（B5，原 B0/B2 临时区正式化） */
 
-.b0-main {
+.index {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 48px 24px 80px;
+  padding: 72px 24px 88px;
 }
 
-.b0-h2 {
+.index__title {
   color: var(--ink);
   font-size: clamp(22px, 3vw, 30px);
   margin: 0 0 12px;
 }
 
-.b0-body {
+.index__body {
   color: var(--ink-2);
-  font-size: 16px;
-  max-width: 40em;
+  font-size: 15px;
+  max-width: 44em;
 }
 
 .card-group {
@@ -24,31 +24,38 @@
 
 .card-group .glow-card {
   flex: 1 1 0;
+  height: 100%;
 }
 
-.b0-social-row {
-  margin-top: 48px;
+.index__link {
+  text-decoration: none;
+  flex: 1 1 0;
   display: flex;
-  justify-content: center;
 }
 
-.b0-swatches {
+.index__swatches {
   display: flex;
   gap: 12px;
   margin-top: 48px;
 }
 
-.b0-swatch {
+.index__swatch {
   width: 36px;
   height: 36px;
   border-radius: 8px;
   border: 1px solid var(--border);
 }
 
-.b0-swatch--1 { background: var(--data-1); }
-.b0-swatch--2 { background: var(--data-2); }
-.b0-swatch--3 { background: var(--data-3); }
-.b0-swatch--4 { background: var(--data-4); }
-.b0-swatch--5 { background: var(--data-5); }
-.b0-swatch--6 { background: var(--data-6); }
-.b0-swatch--7 { background: var(--data-7); }
+.index__swatch--1 { background: var(--data-1); }
+.index__swatch--2 { background: var(--data-2); }
+.index__swatch--3 { background: var(--data-3); }
+.index__swatch--4 { background: var(--data-4); }
+.index__swatch--5 { background: var(--data-5); }
+.index__swatch--6 { background: var(--data-6); }
+.index__swatch--7 { background: var(--data-7); }
+
+@media (max-width: 900px) {
+  .card-group {
+    flex-direction: column;
+  }
+}
