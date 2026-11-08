@@ -4,6 +4,10 @@ import type { CSSProperties, ReactNode, ReactElement } from 'react';
 export interface PillNavItem {
   label: string;
   href: string;
+  /** 可选图标（渲染在 label 前） */
+  icon?: ReactNode;
+  /** 无障碍名称（图标条目必填） */
+  ariaLabel?: string;
 }
 
 export interface PillNavProps {
