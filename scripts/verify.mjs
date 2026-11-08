@@ -388,6 +388,68 @@ await new Promise((r) => setTimeout(r, 500));
   await page.mouse.move(10, 500, { steps: 3 });
 }
 
+/* ===================== B3 · 长舞台 ===================== */
+
+/* 1) 桌面 pin：滚到行程 40% 处，section top 应钉在 68px（navBottom 64 + 4px 间隙，坑 #4），轨道已横移 */
+await loadWithTheme('light');
+await page.setViewport({ width: 1280, height: 800 });
+await new Promise((r) => setTimeout(r, 900)); /* 等 fonts.ready refresh（坑 #6） */
+const stageMid = await evaluate(() => {
+  if (!window.__stage) return null;
+  const info = window.__stage();
+  const top = document.querySelector('[data-stage]').offsetTop;
+  window.scrollTo(0, top - 68 + info.travel * 1.4);
+  return info;
+});
+await new Promise((r) => setTimeout(r, 900)); /* scrub:1 追赶 */
+const pinned = await evaluate(() => (window.__stage ? window.__stage() : null));
+record(
+  'stage-pin-desktop',
+  Boolean(stageMid && pinned && pinned.pinCount >= 1 && Math.abs(pinned.sectionTop - 68) <= 2 && pinned.trackX < 0),
+  `pinCount=${pinned?.pinCount} pinTop=${pinned?.sectionTop?.toFixed(1)}（≈68，与导航底 64 间隙 ≥4px） trackX=${pinned?.trackX?.toFixed(0)}`,
+);
+
+/* 2) travel 合成正确（坑 #3）：travel == 自合成轨道宽 - 裁剪窗宽，两个视口各差 ≤1px */
+const travel1280 = await evaluate(() => (window.__stage ? window.__stage() : null));
+await page.setViewport({ width: 1440, height: 800 });
+await new Promise((r) => setTimeout(r, 900));
+const travel1440 = await evaluate(() => (window.__stage ? window.__stage() : null));
+const d1280 = travel1280 ? Math.abs(travel1280.travel - (travel1280.trackW - travel1280.winW)) : -1;
+const d1440 = travel1440 ? Math.abs(travel1440.travel - (travel1440.trackW - travel1440.winW)) : -1;
+record(
+  'stage-travel',
+  d1280 <= 1 && d1440 <= 1 && travel1280.travel > 0,
+  `1280: travel=${travel1280?.travel?.toFixed(0)} 偏差${d1280.toFixed(1)}px | 1440: travel=${travel1440?.travel?.toFixed(0)} 偏差${d1440.toFixed(1)}px（≤1px）`,
+);
+
+/* 3) 移动端降级：<768px 无 pin、轨道竖排 */
+await page.setViewport({ width: 375, height: 720 });
+await new Promise((r) => setTimeout(r, 900));
+const mobileStage = await evaluate(() => ({
+  hasHook: Boolean(window.__stage),
+  dir: getComputedStyle(document.querySelector('.stage-track')).flexDirection,
+}));
+record(
+  'stage-mobile',
+  mobileStage.dir === 'column' && !mobileStage.hasHook,
+  `轨道方向=${mobileStage.dir}，pin 钩子存在=${mobileStage.hasHook}（应 false）`,
+);
+
+/* 4) reduced-motion：独立页面模拟（坑 #12 触摸断言教训：模拟状态用隔离环境） */
+{
+  const rmPage = await browser.newPage();
+  await rmPage.setViewport({ width: 1280, height: 800 });
+  await rmPage.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
+  await rmPage.goto(BASE, { waitUntil: 'networkidle0' });
+  await new Promise((r) => setTimeout(r, 900));
+  const rm = await rmPage.evaluate(() => ({
+    hasHook: Boolean(window.__stage),
+    pinCount: window.__stage ? window.__stage().pinCount : 0,
+  }));
+  record('stage-reduced-motion', !rm.hasHook && rm.pinCount === 0, `pin 数=${rm.pinCount}（应为 0）`);
+  await rmPage.close();
+}
+
 /* 3 个 spot 实测（D5，记录数据不做修正） */
 await loadWithTheme('light');
 const spots = await evaluate(() =>

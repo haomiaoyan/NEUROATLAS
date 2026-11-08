@@ -1,4 +1,5 @@
 import Hero from './sections/Hero';
+import SignalStage from './sections/SignalStage';
 import TopNav from './components/TopNav';
 import GlowCard from './components/GlowCard';
 import SocialLinks from './components/SocialLinks';
@@ -10,6 +11,7 @@ export default function App() {
     <>
       <TopNav />
       <Hero />
+      <SignalStage />
       <main className="b0-main">
         <h2 className="b0-h2">三个章节，正在路上</h2>
         <p className="b0-body" data-contrast="body">
