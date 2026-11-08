@@ -1,0 +1,64 @@
+/* 记忆流程（B4） */
+
+.mem-flow {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mem-step {
+  position: relative;
+  display: flex;
+  gap: 16px;
+  padding: 0 0 26px 0;
+}
+
+.mem-step:last-child {
+  padding-bottom: 0;
+}
+
+.mem-step__idx {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--data-1);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  z-index: 1;
+}
+
+/* 连接线 */
+.mem-step:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 16px;
+  top: 38px;
+  bottom: 4px;
+  width: 2px;
+  background: var(--border);
+}
+
+.mem-step__title {
+  display: inline-block;
+  color: var(--ink);
+  font-size: 16px;
+  margin-right: 10px;
+}
+
+.mem-step__time {
+  color: var(--accent);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+}
+
+.mem-step__text {
+  color: var(--ink-2);
+  font-size: 14px;
+  line-height: 1.7;
+  margin: 4px 0 0;
+}

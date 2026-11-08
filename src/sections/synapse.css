@@ -1,0 +1,67 @@
+/* 突触示意图（B4） */
+
+.sy-terminal,
+.sy-post {
+  fill: var(--surface);
+  stroke: var(--ink-2);
+  stroke-width: 1.6;
+}
+
+.sy-terminal {
+  fill: var(--bg);
+}
+
+.sy-vesicle {
+  fill: var(--data-1);
+  opacity: 0.55;
+}
+
+.sy-membrane {
+  stroke: var(--ink-2);
+  stroke-width: 2;
+}
+
+.sy-label {
+  fill: var(--ink-2);
+  font-size: 12px;
+}
+
+.sy-receptor {
+  fill: var(--data-1);
+  opacity: 0.7;
+}
+
+@keyframes sy-fall {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(52px);
+    opacity: 0;
+  }
+}
+
+.sy-nt {
+  fill: var(--data-2);
+  animation: sy-fall 2.4s linear infinite;
+}
+
+.sy-nt:nth-of-type(2) {
+  animation-delay: 0.5s;
+}
+.sy-nt:nth-of-type(3) {
+  animation-delay: 1s;
+}
+.sy-nt:nth-of-type(4) {
+  animation-delay: 1.5s;
+}
+.sy-nt:nth-of-type(5) {
+  animation-delay: 2s;
+}

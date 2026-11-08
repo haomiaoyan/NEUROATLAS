@@ -1,0 +1,85 @@
+/* 内容章节共用版式（B4） */
+
+.chapter {
+  padding: 96px 0;
+  border-top: 1px solid var(--border);
+}
+
+.chapter__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.chapter__kicker {
+  color: var(--accent);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  margin: 0 0 8px;
+}
+
+.chapter__title {
+  color: var(--ink);
+  font-size: clamp(24px, 3.4vw, 38px);
+  margin: 0 0 14px;
+}
+
+.chapter__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+  margin-top: 24px;
+}
+
+.chapter__grid--flip .chapter__text {
+  order: 2;
+}
+
+.chapter__body {
+  color: var(--ink-2);
+  font-size: 15px;
+  line-height: 1.8;
+  text-wrap: pretty;
+}
+
+.chapter__body .fact {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.chapter__viz {
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.chapter__viz svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.chapter__viz figcaption {
+  color: var(--ink-2);
+  opacity: 0.8;
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+@media (max-width: 900px) {
+  .chapter {
+    padding: 64px 0;
+  }
+
+  .chapter__grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .chapter__grid--flip .chapter__text {
+    order: 0;
+  }
+}

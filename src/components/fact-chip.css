@@ -1,0 +1,39 @@
+.fact-chip {
+  display: block;
+  border-left: 3px solid var(--data-1);
+  background: var(--surface);
+  border-radius: 0 10px 10px 0;
+  padding: 10px 14px;
+  margin-top: 14px;
+}
+
+.fact-chip--illustrative {
+  border-left-color: var(--data-2);
+}
+
+.fact-chip__row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.fact-chip__value {
+  color: var(--ink);
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.fact-chip__label {
+  color: var(--ink-2);
+  font-size: 14px;
+}
+
+.fact-chip__source {
+  display: block;
+  color: var(--ink-2);
+  opacity: 0.75;
+  font-size: 12px;
+  margin-top: 4px;
+}

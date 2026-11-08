@@ -450,6 +450,29 @@ record(
   await rmPage.close();
 }
 
+/* ===================== B4 · 出处系统与可视化无障碍 ===================== */
+await loadWithTheme('light');
+await page.setViewport({ width: 1280, height: 800 });
+{
+  const viz = await evaluate(() =>
+    [...document.querySelectorAll('[data-viz]')].map((v) => ({
+      role: v.getAttribute('role'),
+      aria: (v.getAttribute('aria-label') || '').trim().length,
+    })),
+  );
+  record(
+    'viz-aria',
+    viz.length >= 4 && viz.every((v) => v.role === 'img' && v.aria > 10),
+    `${viz.length} 个可视化全部有 role=img + 非空 aria-label（提示词 §四.4）`,
+  );
+
+  const honest = await evaluate(() => ({
+    illustrative: document.body.textContent.includes('教学示意'),
+    sources: document.body.textContent.includes('出处'),
+  }));
+  record('source-honesty', honest.illustrative && honest.sources, `「教学示意」与出处标注均出现在页面中（D7）`);
+}
+
 /* 3 个 spot 实测（D5，记录数据不做修正） */
 await loadWithTheme('light');
 const spots = await evaluate(() =>

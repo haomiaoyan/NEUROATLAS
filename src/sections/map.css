@@ -1,0 +1,49 @@
+/* 大脑地图（B4） */
+
+.map-region {
+  opacity: 0.45;
+  transition: opacity 0.25s ease;
+}
+
+.map-region:hover {
+  opacity: 0.85;
+}
+
+.map-midline {
+  stroke: var(--ink-2);
+  stroke-width: 1;
+  stroke-dasharray: 5 6;
+  opacity: 0.35;
+}
+
+.map-legend {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+  padding: 0;
+  margin: 24px 0 0;
+}
+
+.map-legend__item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.map-legend__item strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.map-legend__item span {
+  color: var(--ink-2);
+}
+
+.map-legend__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  align-self: center;
+}

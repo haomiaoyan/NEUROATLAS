@@ -1,17 +1,23 @@
 import Hero from './sections/Hero';
 import SignalStage from './sections/SignalStage';
+import SynapseSection from './sections/SynapseSection';
+import MapSection from './sections/MapSection';
+import MemorySection from './sections/MemorySection';
 import TopNav from './components/TopNav';
 import GlowCard from './components/GlowCard';
 import SocialLinks from './components/SocialLinks';
 import Source from './components/Source';
 
-/** B2 页面：TopNav + Hero + 组件验收区（卡片组 / 社交图标 / 对比度锚点）。 */
+/** B4 页面：TopNav + Hero + 长舞台 + 三个内容章节 + 组件验收区。 */
 export default function App() {
   return (
     <>
       <TopNav />
       <Hero />
       <SignalStage />
+      <SynapseSection />
+      <MapSection />
+      <MemorySection />
       <main className="b0-main">
         <h2 className="b0-h2">三个章节，正在路上</h2>
         <p className="b0-body" data-contrast="body">
