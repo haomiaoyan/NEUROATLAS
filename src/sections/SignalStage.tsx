@@ -165,7 +165,7 @@ export default function SignalStage() {
             <p className="stage-kicker">CHAPTER 01</p>
             <h2 className="stage-title">一颗粒子的极速狂奔</h2>
             <p className="stage-sub">
-              从「静息」到「发射」，一次动作电位只用约 1 毫秒——文献出处见页尾「参考资料」。
+              从「静息」到「发射」，一次动作电位只用 <strong data-fact="action-potential-duration">约 1 毫秒</strong>——文献出处见页尾「参考资料」。
             </p>
             <span className="stage-counter" ref={counterRef} aria-hidden="true">
               01 / 05

@@ -54,7 +54,7 @@ export default function Hero() {
         />
       </div>
       <p className="hero__tagline">
-        你的头骨里约有 <strong className="hero__num">86,000,000,000</strong> 个神经元——
+        你的头骨里约有 <strong className="hero__num" data-fact="neuron-count">86,000,000,000</strong> 个神经元——
         每一个都正在和你一起读这行字。
       </p>
     </div>

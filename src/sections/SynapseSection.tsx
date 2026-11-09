@@ -18,7 +18,7 @@ export default function SynapseSection() {
           <div className="chapter__text">
             <p className="chapter__body">
               电信号奔到轴突末梢并不直接跳过去——它在这里换成化学语言。囊泡把神经递质吐进
-              约 20-40 纳米的突触间隙，分子飘过对岸、扣上受体，下一个神经元才重新点火。
+              约 <strong className="fact" data-fact="synaptic-cleft">20-40 纳米</strong>的突触间隙，分子飘过对岸、扣上受体，下一个神经元才重新点火。
               电 → 化学 → 电，每一次思考都要经历亿万次这样的换乘。
             </p>
             <FactChip fact={per} />
@@ -62,7 +62,7 @@ export default function SynapseSection() {
                 <rect key={x} className="sy-receptor" x={x} y="186" width="16" height="9" rx="3" />
               ))}
             </svg>
-            <figcaption>结构为示意图，间隙宽度未按真实比例（真实间隙 20-40 纳米）。</figcaption>
+            <figcaption>结构为示意图，间隙宽度未按真实比例（真实间隙 <span data-fact="synaptic-cleft">20-40 纳米</span>）。</figcaption>
           </figure>
         </div>
       </div>

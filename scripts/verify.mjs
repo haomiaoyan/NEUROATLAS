@@ -306,7 +306,7 @@ const readProgress = () =>
 await loadWithTheme('light');
 await page.setViewport({ width: 1280, height: 800 });
 const pTop = await readProgress();
-await evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+await evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
 await new Promise((r) => setTimeout(r, 500));
 const pBottom = await readProgress();
 record(
@@ -418,7 +418,7 @@ const stageMid = await evaluate(() => {
   if (!window.__stage) return null;
   const info = window.__stage();
   const top = document.querySelector('[data-stage]').offsetTop;
-  window.scrollTo(0, top - 68 + info.travel * 1.4);
+  window.scrollTo({ top: top - 68 + info.travel * 1.4, behavior: 'instant' });
   return info;
 });
 await new Promise((r) => setTimeout(r, 900)); /* scrub:1 追赶 */
@@ -486,6 +486,16 @@ record(
     infoIntact,
     `reduced-motion 下三章节文本量 ${rm.chapterText.join('/')}（信息一条不少，§四.4）`,
   );
+  const rmCount = await rmPage.evaluate(() =>
+    [...document.querySelectorAll('[data-countup]')].every(
+      (e) => e.textContent.trim() === e.getAttribute('data-countup'),
+    ),
+  );
+  record(
+    'countup-reduced-motion',
+    rmCount,
+    'reduced-motion 下数字直接显示终值（不做滚动动画）',
+  );
   await rmPage.close();
 }
 
@@ -520,7 +530,7 @@ await page.setViewport({ width: 1280, height: 800 });
 /* ===================== B5 · 边界声明 / Outro / 收尾 ===================== */
 await loadWithTheme('light');
 await page.setViewport({ width: 1280, height: 800 });
-await evaluate(() => window.scrollTo(0, 0)); /* 同 URL goto 会恢复滚动位置，显式回顶 */
+await evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' })); /* 同 URL goto 会恢复滚动位置，显式回顶 */
 await new Promise((r) => setTimeout(r, 600));
 {
   /* 标题几何：TechText 画布必须完整在悬浮导航之下（B5 曾回归：inner 塌高后标题被导航裁切） */
@@ -562,8 +572,8 @@ await new Promise((r) => setTimeout(r, 600));
   });
   record(
     'outro-complete',
-    Boolean(outro && outro.text && outro.refItems === 9 && outro.social),
-    `声明双栏=${outro?.text} 参考资料条目=${outro?.refItems}（=9） 社交入口=${outro?.social}`,
+    Boolean(outro && outro.text && outro.social && outro.refItems === (await evaluate(() => (window.__factIds || []).length))),
+    `声明双栏=${outro?.text} 参考资料条目=${outro?.refItems}（=注册表条数） 社交入口=${outro?.social}`,
   );
 
   /* 章节目录锚点都指向存在的 id */
@@ -688,9 +698,9 @@ for (const theme of THEMES) {
   record(`techtext-idle-stop:${theme}`, idleA === idleB, '指针离开后 TechText 停帧（画面冻结）');
 
   /* 4) 滚动往返无残留：hero 仍正常有粒子内容 */
-  await evaluate(() => window.scrollTo(0, 2000));
+  await evaluate(() => window.scrollTo({ top: 2000, behavior: 'instant' }));
   await new Promise((r) => setTimeout(r, 400));
-  await evaluate(() => window.scrollTo(0, 0));
+  await evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
   await new Promise((r) => setTimeout(r, 600));
   const pxAfter = await countHeroPixels();
   record(`scroll-residue:${theme}`, pxAfter >= 1500, `往返后 hero 非背景像素 ${pxAfter}（≥1500）`);
@@ -764,6 +774,100 @@ record(
   Math.abs(mobileAxis.delta) <= 4 && mobileAxis.align === 'left',
   `移动端 text-align=${mobileAxis.align}，副标左缘与标题画布左缘差 ${mobileAxis.delta.toFixed(1)}px（≤4px）`,
 );
+
+/* ===================== B7 · 导航高亮 / 注册表 / CountUp / 淡入 / 尺度轴 ===================== */
+await loadWithTheme('light');
+await page.setViewport({ width: 1280, height: 800 });
+await evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+await new Promise((r) => setTimeout(r, 500));
+{
+  /* 1) 注册表覆盖：所有 [data-fact] 的 id 都在注册表内，参考资料条数同步 */
+  const reg = await evaluate(() => {
+    const ids = window.__factIds || [];
+    const marked = [...document.querySelectorAll('[data-fact]')].map((el) => el.getAttribute('data-fact'));
+    return {
+      count: ids.length,
+      markedCount: marked.length,
+      unknown: marked.filter((id) => !ids.includes(id)),
+      refs: document.querySelectorAll('.outro__refs li').length,
+    };
+  });
+  record(
+    'fact-registry-coverage',
+    reg.count >= 14 && reg.markedCount >= 10 && reg.unknown.length === 0 && reg.refs === reg.count,
+    `注册表 ${reg.count} 条 / 页面标记 ${reg.markedCount} 处 / 未知 ${reg.unknown.length} 个 / 参考资料 ${reg.refs} 条`,
+  );
+
+  /* 2) 尺度轴：4 节点、锚点有效、时间数字已注册 */
+  const scale = await evaluate(() => {
+    const nodes = [...document.querySelectorAll('.scale__node')];
+    return {
+      n: nodes.length,
+      linksOk: nodes.every((n) => {
+        const a = n.querySelector('a[href^="#"]');
+        return Boolean(a && document.getElementById(a.getAttribute('href').slice(1)));
+      }),
+      factsOk: nodes.every((n) => Boolean(n.querySelector('[data-fact]'))),
+    };
+  });
+  record(
+    'scale-axis',
+    scale.n === 4 && scale.linksOk && scale.factsOk,
+    `节点 ${scale.n} 个，锚点有效=${scale.linksOk}，时间已注册=${scale.factsOk}`,
+  );
+
+  /* 3) 导航高亮：滚到记忆章后 aria-current 指向 #memory */
+  await evaluate(() => document.getElementById('memory').scrollIntoView({ block: 'start', behavior: 'instant' }));
+  await new Promise((r) => setTimeout(r, 400));
+  const active = await evaluate(() => {
+    const a = document.querySelector('[data-nav] a[aria-current="page"]');
+    return a ? a.getAttribute('href') : null;
+  });
+  record('nav-active-highlight', active === '#memory', `滚动到记忆章后高亮 ${active}（应为 #memory）`);
+
+  /* 4) CountUp：顶部未触发 → 依次滚过突触/地图两章 → 全部到达终值 */
+  await evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+  await new Promise((r) => setTimeout(r, 300));
+  const beforeCount = await evaluate(() =>
+    [...document.querySelectorAll('[data-countup]')].map((e) => ({
+      final: e.getAttribute('data-countup'),
+      now: e.textContent.trim(),
+    })),
+  );
+  await evaluate(() => document.getElementById('synapse').scrollIntoView({ block: 'center', behavior: 'instant' }));
+  await new Promise((r) => setTimeout(r, 1300));
+  await evaluate(() => document.getElementById('map').scrollIntoView({ block: 'center', behavior: 'instant' }));
+  await new Promise((r) => setTimeout(r, 1300));
+  const afterCount = await evaluate(() =>
+    [...document.querySelectorAll('[data-countup]')].map((e) => ({
+      final: e.getAttribute('data-countup'),
+      now: e.textContent.trim(),
+    })),
+  );
+  record(
+    'countup-final',
+    beforeCount.length >= 3 &&
+      beforeCount.some((x) => x.now !== x.final) &&
+      afterCount.every((x) => x.now === x.final),
+    `${afterCount.length} 个数字：进视口前未达终值，滚过后全部到达`,
+  );
+
+  /* 5) 章节淡入：滚过的 reveal 元素已显现且 opacity=1（computed style 口径） */
+  const reveal = await evaluate(() => {
+    const els = [...document.querySelectorAll('.reveal')];
+    const shown = els.filter((e) => e.classList.contains('reveal--in'));
+    return {
+      total: els.length,
+      shown: shown.length,
+      opacity: shown.length ? Number(getComputedStyle(shown[0]).opacity) : -1,
+    };
+  });
+  record(
+    'reveal-inview',
+    reveal.total >= 8 && reveal.shown >= 3 && reveal.opacity === 1,
+    `共 ${reveal.total} 个元素，已显现 ${reveal.shown} 个，opacity=${reveal.opacity}`,
+  );
+}
 
 await browser.close();
 server.kill();

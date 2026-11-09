@@ -15,26 +15,30 @@ export interface Fact {
   value: string;
   /** 中文含义 */
   label: string;
+  /** 可选的进视口数字滚动配置（B7） */
+  count?: { value: number; unit?: string; prefix?: string };
   source: SourceRef;
 }
 
 export const FACTS: Fact[] = [
   {
     id: 'neuron-count',
-    value: '860 亿',
-    label: '人脑神经元总数',
+    value: '86,000,000,000',
+    label: '人脑神经元总数（约 860 亿）',
     source: { name: 'Azevedo et al., J Comp Neurol', year: '2009', kind: 'literature' },
   },
   {
     id: 'cortex-neurons',
     value: '160 亿',
     label: '大脑皮层神经元数量',
+    count: { value: 160, unit: ' 亿' },
     source: { name: 'Azevedo et al., J Comp Neurol', year: '2009', kind: 'literature' },
   },
   {
     id: 'synapses-per-neuron',
     value: '约 7,000',
     label: '单个神经元平均突触连接数',
+    count: { value: 7000, prefix: '约 ' },
     source: { name: '神经科学教科书通行估计', kind: 'illustrative' },
   },
   {
@@ -47,6 +51,7 @@ export const FACTS: Fact[] = [
     id: 'brain-energy',
     value: '20%',
     label: '大脑耗能占全身比例（重量仅约 2%）',
+    count: { value: 20, unit: '%' },
     source: { name: 'Raichle & Gusnard, PNAS', year: '2002', kind: 'literature' },
   },
   {
@@ -72,6 +77,44 @@ export const FACTS: Fact[] = [
     value: '1973',
     label: '长时程增强（LTP）首次报道——突触可塑性的细胞机制',
     source: { name: 'Bliss & Lømo, J Physiol', year: '1973', kind: 'literature' },
+  },
+  /* B7 补齐：此前散落在正文、未注册的数字 */
+  {
+    id: 'cortex-thickness',
+    value: '2 毫米',
+    label: '大脑皮层厚度',
+    source: { name: '神经科学教科书通行值', kind: 'illustrative' },
+  },
+  {
+    id: 'synaptic-cleft',
+    value: '20-40 纳米',
+    label: '突触间隙宽度',
+    source: { name: '神经科学教科书通行值', kind: 'illustrative' },
+  },
+  {
+    id: 'action-potential-duration',
+    value: '约 1 毫秒',
+    label: '一次动作电位的时程',
+    source: { name: 'Kandel, Principles of Neural Science, 5th ed.', kind: 'literature' },
+  },
+  /* B7 尺度轴的四个时间尺度 */
+  {
+    id: 'thought-duration',
+    value: '约 0.1 秒',
+    label: '一次简单识别（一个念头）的时间量级',
+    source: { name: '量级描述，教学示意', kind: 'illustrative' },
+  },
+  {
+    id: 'memory-consolidation',
+    value: '一次睡眠',
+    label: '海马体向皮层转写记忆的时间窗',
+    source: { name: '教学示意（具体机制仍是活跃研究领域）', kind: 'illustrative' },
+  },
+  {
+    id: 'memory-lifetime',
+    value: '一生',
+    label: '长期记忆可保持的时间跨度',
+    source: { name: '教学示意（定性描述）', kind: 'illustrative' },
   },
 ];
 

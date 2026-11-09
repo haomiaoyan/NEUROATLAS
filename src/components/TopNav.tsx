@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import PillNav from './PillNav';
 import ThemeSwitch from './ThemeSwitch';
 import { useTheme } from '../theme/ThemeProvider';
@@ -30,7 +30,10 @@ function GitHubIcon() {
   );
 }
 
+const SECTION_IDS = ['scale', 'signal', 'synapse', 'map', 'memory'];
+
 const ITEMS = [
+  { label: '尺度', href: '#scale' },
   { label: '信号', href: '#signal' },
   { label: '突触', href: '#synapse' },
   { label: '地图', href: '#map' },
@@ -38,10 +41,11 @@ const ITEMS = [
   { icon: <GitHubIcon />, label: '', ariaLabel: 'GitHub 项目仓库', href: 'https://github.com/haomiaoyan/NEUROATLAS' },
 ];
 
-/** 悬浮胶囊导航（PillNav 源码集成）。图标即项目标识（同 favicon），GitHub 项纯图标（用户指定）。 */
+/** 悬浮胶囊导航（PillNav 源码集成）。B7：activeHref 跟随滚动高亮当前章节。 */
 export default function TopNav() {
   const { theme } = useTheme();
   const barRef = useRef<HTMLDivElement>(null);
+  const [activeHref, setActiveHref] = useState('#scale');
 
   useEffect(() => {
     let raf = 0;
@@ -50,6 +54,14 @@ export default function TopNav() {
       const max = document.documentElement.scrollHeight - window.innerHeight;
       const p = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 1;
       if (barRef.current) barRef.current.style.transform = `scaleX(${p})`;
+
+      /* 章节高亮：判定线取视口顶部 160px（导航 68px 之后再留余量） */
+      let current = SECTION_IDS[0];
+      for (const id of SECTION_IDS) {
+        const el = document.getElementById(id);
+        if (el && el.getBoundingClientRect().top <= 160) current = id;
+      }
+      setActiveHref(`#${current}`);
     };
     const onScroll = () => {
       if (!raf) raf = requestAnimationFrame(update);
@@ -73,6 +85,7 @@ export default function TopNav() {
           logoAlt="NEUROATLAS 首页"
           logoHref="#"
           items={ITEMS}
+          activeHref={activeHref}
           theme={theme}
           ariaLabel="站点导航"
         />

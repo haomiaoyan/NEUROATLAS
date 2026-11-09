@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import Hero from './sections/Hero';
+import ScaleAxis from './sections/ScaleAxis';
 import SignalStage from './sections/SignalStage';
 import SynapseSection from './sections/SynapseSection';
 import MapSection from './sections/MapSection';
@@ -6,13 +8,41 @@ import MemorySection from './sections/MemorySection';
 import Outro from './sections/Outro';
 import TopNav from './components/TopNav';
 import GlowCard from './components/GlowCard';
+import { FACTS } from './data/sources';
+import './styles/reveal.css';
 
-/** B5 页面：完整站点。锚点段（对比度/色板）保留在目录区供 verify 使用。 */
+/** B7 页面：尺度轴总览（CH01 之前）+ 四章 + 目录 + Outro。 */
 export default function App() {
+  useEffect(() => {
+    /* 验收钩子：页面所有 data-fact 的 id 必须在注册表内 */
+    (window as unknown as Record<string, unknown>).__factIds = FACTS.map((f) => f.id);
+
+    /* 章节入场淡入：统一给章节头/可视化/尺度轴加类，reduced-motion 直接可见 */
+    const els = document.querySelectorAll('.chapter__head, .chapter__viz, .scale__list');
+    els.forEach((el) => el.classList.add('reveal'));
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      els.forEach((el) => el.classList.add('reveal--in'));
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add('reveal--in');
+            io.unobserve(e.target);
+          }
+        }),
+      { threshold: 0.12 },
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+
   return (
     <>
       <TopNav />
       <Hero />
+      <ScaleAxis />
       <SignalStage />
       <SynapseSection />
       <MapSection />

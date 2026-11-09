@@ -25,8 +25,9 @@ export default function MapSection() {
         <div className="chapter__grid chapter__grid--flip">
           <div className="chapter__text">
             <p className="chapter__body">
-              皮层只有约 2 毫米厚，却装着约 <strong className="fact">{cortex.value}</strong> 个神经元，
-              并消耗全身约 <strong className="fact">{energy.value}</strong> 的能量。
+              皮层只有约 <strong className="fact" data-fact="cortex-thickness">2 毫米</strong>厚，却装着约{' '}
+              <strong className="fact" data-fact="cortex-neurons">{cortex.value}</strong> 个神经元，
+              并消耗全身约 <strong className="fact" data-fact="brain-energy">{energy.value}</strong> 的能量。
               把它摊平大约有一张报纸大——功能分区的地图大致如下，但真实大脑的边界比你想象的模糊得多。
             </p>
             <FactChip fact={cortex} />
