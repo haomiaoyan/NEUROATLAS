@@ -38,15 +38,18 @@
 
 .hero__tagline {
   color: var(--ink-2);
-  /* 单行呈现（用户要求）：字号随视口缩放保证 ≥768px 时不换行；小屏恢复正常换行防溢出 */
+  /* 单行呈现（用户要求）：字号随视口缩放保证 ≥768px 时不换行；小屏恢复正常换行防溢出。
+     B6：居中，与标题字形、导航胶囊统一到视口中心轴（实测原副标中心偏左 159.1px）。 */
   font-size: clamp(15px, 1.6vw, 20px);
   white-space: nowrap;
+  text-align: center;
 }
 
 @media (max-width: 767px) {
   .hero__tagline {
     white-space: normal;
     text-wrap: pretty;
+    text-align: left;
   }
 }
 

@@ -698,6 +698,73 @@ for (const theme of THEMES) {
 
 await page.setViewport({ width: 1280, height: 800 });
 
+/* ===================== B6 · 首屏轴线对齐 ===================== */
+/* 三条轴线（导航胶囊 / TechText 字形主体 / 副标文字）与视口中心的差，全部 ≤4px。
+   1280、1440 两视口 × light、dark 两主题各跑一次。 */
+for (const [w, h] of [[1280, 800], [1440, 900]]) {
+  for (const theme of THEMES) {
+    await loadWithTheme(theme);
+    await page.setViewport({ width: w, height: h });
+    await evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+    await new Promise((r) => setTimeout(r, 700));
+    const axis = await evaluate(() => {
+      const cx = window.innerWidth / 2;
+      const pill = document.querySelector('.pill-nav').getBoundingClientRect();
+      const c = document.querySelector('.tech-text-canvas');
+      const cr = c.getBoundingClientRect();
+      const ctx = c.getContext('2d');
+      const d = ctx.getImageData(0, 0, c.width, c.height).data;
+      const cols = new Array(c.width).fill(0);
+      for (let y = 0; y < c.height; y += 2) {
+        for (let x = 0; x < c.width; x += 2) {
+          if (d[(y * c.width + x) * 4 + 3] > 60) cols[x]++;
+        }
+      }
+      const peak = Math.max(...cols);
+      const thr = peak * 0.15;
+      let minX = c.width, maxX = 0;
+      for (let x = 0; x < c.width; x++) {
+        if (cols[x] > thr) { if (x < minX) minX = x; if (x > maxX) maxX = x; }
+      }
+      const glyphCx = cr.left + ((minX + maxX) / 2 / c.width) * cr.width;
+      const rg = document.createRange();
+      rg.selectNodeContents(document.querySelector('.hero__tagline'));
+      const t = rg.getBoundingClientRect();
+      return {
+        nav: (pill.left + pill.right) / 2 - cx,
+        glyph: glyphCx - cx,
+        tagline: (t.left + t.right) / 2 - cx,
+      };
+    });
+    record(
+      `hero-axis-align:${w}:${theme}`,
+      Math.abs(axis.nav) <= 4 && Math.abs(axis.glyph) <= 4 && Math.abs(axis.tagline) <= 4,
+      `轴线偏移 导航 ${axis.nav.toFixed(1)} / 字形 ${axis.glyph.toFixed(1)} / 副标 ${axis.tagline.toFixed(1)}（均 ≤4px）`,
+    );
+  }
+}
+
+/* 375px 移动端：副标保持左对齐、文字左缘与标题画布左缘对齐（±4px），不强制居中 */
+await loadWithTheme('light');
+await page.setViewport({ width: 375, height: 720 });
+await evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+await new Promise((r) => setTimeout(r, 600));
+const mobileAxis = await evaluate(() => {
+  const rg = document.createRange();
+  rg.selectNodeContents(document.querySelector('.hero__tagline'));
+  const t = rg.getBoundingClientRect();
+  const c = document.querySelector('.tech-text-canvas').getBoundingClientRect();
+  return {
+    delta: t.left - c.left,
+    align: getComputedStyle(document.querySelector('.hero__tagline')).textAlign,
+  };
+});
+record(
+  'tagline-mobile-left',
+  Math.abs(mobileAxis.delta) <= 4 && mobileAxis.align === 'left',
+  `移动端 text-align=${mobileAxis.align}，副标左缘与标题画布左缘差 ${mobileAxis.delta.toFixed(1)}px（≤4px）`,
+);
+
 await browser.close();
 server.kill();
 
