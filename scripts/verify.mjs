@@ -945,6 +945,22 @@ for (const [w, h] of [[1280, 800], [1280, 700], [1440, 900], [375, 720]]) {
   );
 }
 
+/* ===================== B10 · 首屏主数字滚动 ===================== */
+await loadWithTheme('light');
+await page.setViewport({ width: 1280, height: 800 });
+await new Promise((r) => setTimeout(r, 1700)); /* 等 1400ms 缓出动画结束 */
+{
+  const heroNum = await evaluate(() => {
+    const el = document.querySelector('.hero__num [data-countup]');
+    return el ? { final: el.getAttribute('data-countup'), now: el.textContent.trim() } : null;
+  });
+  record(
+    'hero-countup',
+    Boolean(heroNum && heroNum.final === '86,000,000,000' && heroNum.now === '86,000,000,000'),
+    `首屏数字滚动到位：${heroNum?.now}（终值 ${heroNum?.final}）`,
+  );
+}
+
 await browser.close();
 server.kill();
 
