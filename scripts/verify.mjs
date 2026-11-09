@@ -928,6 +928,23 @@ for (const theme of THEMES) {
   record(`quiz-contrast:${theme}`, ratio >= 4.5, `题干对比度 ${ratio.toFixed(2)}（≥4.5）`);
 }
 
+/* ===================== B9 · 首屏只留标题区（尺度轴完全在折叠线下） ===================== */
+for (const [w, h] of [[1280, 800], [1280, 700], [1440, 900], [375, 720]]) {
+  await page.setViewport({ width: w, height: h });
+  await evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+  await new Promise((r) => setTimeout(r, 350));
+  const fold = await evaluate(() => ({
+    heroH: document.querySelector('[data-hero]').getBoundingClientRect().height,
+    scaleTop: document.querySelector('#scale').getBoundingClientRect().top,
+    viewH: window.innerHeight,
+  }));
+  record(
+    `scale-below-fold:${w}x${h}`,
+    fold.scaleTop >= fold.viewH + 24,
+    `hero 高 ${fold.heroH.toFixed(0)} / 视口 ${fold.viewH}，尺度轴顶 ${fold.scaleTop.toFixed(0)}（≥ 视口+24px）`,
+  );
+}
+
 await browser.close();
 server.kill();
 

@@ -2,7 +2,10 @@
 
 .hero {
   position: relative;
+  /* B9：首屏只留标题区——至少满一屏再多 48px，尺度轴不露在首屏
+     （原 86svh 会让下一章固定露出约 100px，小标题正好卡在视口底边） */
   height: clamp(520px, 86svh, 880px);
+  min-height: calc(100svh + 48px);
   display: flex;
   flex-direction: column;
   background: var(--bg);
