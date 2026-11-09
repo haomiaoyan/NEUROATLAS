@@ -496,6 +496,10 @@ record(
     rmCount,
     'reduced-motion 下数字直接显示终值（不做滚动动画）',
   );
+  const rmQuiz = await rmPage.evaluate(
+    () => (document.querySelector('.quiz__q')?.textContent || '').length,
+  );
+  record('quiz-reduced-motion', rmQuiz > 10, `reduced-motion 下题干仍完整（${rmQuiz} 字，信息不减）`);
   await rmPage.close();
 }
 
@@ -867,6 +871,61 @@ await new Promise((r) => setTimeout(r, 500));
     reveal.total >= 8 && reveal.shown >= 3 && reveal.opacity === 1,
     `共 ${reveal.total} 个元素，已显现 ${reveal.shown} 个，opacity=${reveal.opacity}`,
   );
+}
+
+/* ===================== B8 · 文末小测 ===================== */
+await loadWithTheme('light');
+await page.setViewport({ width: 1280, height: 800 });
+await evaluate(() => document.getElementById('quiz').scrollIntoView({ block: 'center', behavior: 'instant' }));
+await new Promise((r) => setTimeout(r, 400));
+{
+  /* 1) 错误项 / 正确项各自给出反馈 */
+  const firstOpts = await page.$$('.quiz__option');
+  await firstOpts[0].click();
+  await new Promise((r) => setTimeout(r, 200));
+  const wrong = await evaluate(() =>
+    document.querySelector('[data-quiz-feedback]')?.getAttribute('data-quiz-feedback'),
+  );
+  const rightOpts = await page.$$('.quiz__option');
+  await rightOpts[1].click();
+  await new Promise((r) => setTimeout(r, 200));
+  const right = await evaluate(() =>
+    document.querySelector('[data-quiz-feedback]')?.getAttribute('data-quiz-feedback'),
+  );
+  record('quiz-feedback', wrong === 'wrong' && right === 'correct', `错误项反馈=${wrong}，正确项反馈=${right}`);
+
+  /* 2) 三题走完出现完成态（不记分） */
+  for (let i = 0; i < 3; i++) {
+    const os = await page.$$('.quiz__option');
+    if (os.length > 1) await os[1].click();
+    await new Promise((r) => setTimeout(r, 120));
+    await page.click('.quiz__btn');
+    await new Promise((r) => setTimeout(r, 120));
+  }
+  const finished = await evaluate(() => Boolean(document.querySelector('[data-quiz-done]')));
+  record('quiz-complete', finished, '三题走完出现完成态，不记分不上传');
+}
+
+/* 3) 题干对比度两主题各 ≥4.5 */
+for (const theme of THEMES) {
+  await loadWithTheme(theme);
+  await page.setViewport({ width: 1280, height: 800 });
+  const c = await evaluate(() => {
+    const el = document.querySelector('.quiz__q');
+    let node = el;
+    let bg = null;
+    while (node && node !== document.documentElement) {
+      const b = getComputedStyle(node).backgroundColor;
+      if (b && b !== 'transparent' && !b.startsWith('rgba(0, 0, 0, 0)')) {
+        bg = b;
+        break;
+      }
+      node = node.parentElement;
+    }
+    return { color: getComputedStyle(el).color, bg: bg || getComputedStyle(document.body).backgroundColor };
+  });
+  const ratio = contrastRatio(c.color, c.bg);
+  record(`quiz-contrast:${theme}`, ratio >= 4.5, `题干对比度 ${ratio.toFixed(2)}（≥4.5）`);
 }
 
 await browser.close();

@@ -5,6 +5,7 @@ import SignalStage from './sections/SignalStage';
 import SynapseSection from './sections/SynapseSection';
 import MapSection from './sections/MapSection';
 import MemorySection from './sections/MemorySection';
+import QuizSection from './sections/QuizSection';
 import Outro from './sections/Outro';
 import TopNav from './components/TopNav';
 import GlowCard from './components/GlowCard';
@@ -81,6 +82,7 @@ export default function App() {
           ))}
         </div>
       </main>
+      <QuizSection />
       <Outro />
     </>
   );
