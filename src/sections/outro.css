@@ -57,11 +57,31 @@
 .outro__refs-title {
   color: var(--ink);
   font-size: 15px;
-  margin: 0 0 10px;
+  font-weight: 600;
+  margin: 0;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.outro__refs-title::-webkit-details-marker {
+  display: none;
+}
+
+.outro__refs-title::after {
+  content: '＋';
+  color: var(--accent);
+  font-size: 16px;
+}
+
+.outro__refs[open] .outro__refs-title::after {
+  content: '－';
 }
 
 .outro__refs ol {
-  margin: 0;
+  margin: 10px 0 0;
   padding-left: 20px;
   line-height: 1.9;
 }

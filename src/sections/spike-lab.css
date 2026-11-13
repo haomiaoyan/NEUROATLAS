@@ -1,0 +1,143 @@
+/* B11 动作电位发射器：与 Outro 版式一致，双主题全走 CSS 变量 */
+
+.spike {
+  margin-top: 36px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px 24px;
+  background: var(--bg);
+}
+
+.spike__kicker {
+  color: var(--accent);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  margin: 0 0 8px;
+}
+
+.spike__title {
+  color: var(--ink);
+  font-size: clamp(18px, 2.2vw, 24px);
+  margin: 0 0 8px;
+}
+
+.spike__intro {
+  color: var(--ink-2);
+  font-size: 14px;
+  line-height: 1.7;
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.spike__panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 28px;
+  margin-top: 18px;
+  align-items: center;
+}
+
+.spike__label {
+  display: flex;
+  justify-content: space-between;
+  color: var(--ink);
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.spike__level {
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.spike__range {
+  width: 100%;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.spike__scale {
+  display: flex;
+  justify-content: space-between;
+  color: var(--ink-2);
+  opacity: 0.8;
+  font-size: 11px;
+  margin-top: 4px;
+}
+
+.spike__btn {
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--surface);
+  background: var(--accent);
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 9px 18px;
+  cursor: pointer;
+}
+
+.spike__btn:hover {
+  filter: brightness(1.08);
+}
+
+.spike__status {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 14px 0 0;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.spike__status strong {
+  color: var(--data-1);
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+.spike__viz svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.spike__axis {
+  stroke: var(--border);
+  stroke-width: 1.5;
+}
+
+.spike__threshold {
+  stroke: var(--data-6);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 6;
+  opacity: 0.75;
+}
+
+.spike__tick {
+  fill: var(--ink-2);
+  font-size: 11px;
+}
+
+.spike__curve {
+  stroke: var(--data-1);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.9s ease;
+}
+
+.spike__caption {
+  color: var(--ink-2);
+  opacity: 0.85;
+  font-size: 12px;
+  margin: 6px 0 0;
+  text-align: center;
+}
+
+@media (max-width: 760px) {
+  .spike__panel {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}

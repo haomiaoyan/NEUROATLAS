@@ -1,4 +1,5 @@
 import SocialLinks from '../components/SocialLinks';
+import SpikeLab from './SpikeLab';
 import { FACTS } from '../data/sources';
 import './outro.css';
 
@@ -26,8 +27,10 @@ export default function Outro() {
           </div>
         </div>
 
-        <section className="outro__refs" aria-label="参考资料">
-          <h3 className="outro__refs-title">参考资料</h3>
+        <SpikeLab />
+
+        <details className="outro__refs" aria-label="参考资料">
+          <summary className="outro__refs-title">参考资料（{FACTS.length} 条）</summary>
           <ol>
             {FACTS.map((f) => (
               <li key={f.id}>
@@ -43,7 +46,7 @@ export default function Outro() {
               </li>
             ))}
           </ol>
-        </section>
+        </details>
 
         <div className="outro__social">
           <SocialLinks />

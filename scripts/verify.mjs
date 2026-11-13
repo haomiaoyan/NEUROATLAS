@@ -500,6 +500,24 @@ record(
     () => (document.querySelector('.quiz__q')?.textContent || '').length,
   );
   record('quiz-reduced-motion', rmQuiz > 10, `reduced-motion 下题干仍完整（${rmQuiz} 字，信息不减）`);
+  await rmPage.evaluate(() => {
+    const el = document.getElementById('spike-level');
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+    setter.call(el, '80');
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  await new Promise((r) => setTimeout(r, 150));
+  await rmPage.evaluate(() => document.querySelector('.spike__btn').click());
+  await new Promise((r) => setTimeout(r, 150));
+  const rmSpike = await rmPage.evaluate(() => ({
+    status: document.querySelector('[data-spike-status]')?.getAttribute('data-spike-status'),
+    drawn: document.querySelector('[data-spike-drawn]')?.getAttribute('data-spike-drawn'),
+  }));
+  record(
+    'spike-reduced-motion',
+    rmSpike.status === 'fired' && rmSpike.drawn === 'yes',
+    `reduced-motion 下按钮可用、结果静态呈现（${rmSpike.status}/${rmSpike.drawn}）`,
+  );
   await rmPage.close();
 }
 
@@ -958,6 +976,66 @@ await new Promise((r) => setTimeout(r, 1700)); /* 等 1400ms 缓出动画结束 
     'hero-countup',
     Boolean(heroNum && heroNum.final === '86,000,000,000' && heroNum.now === '86,000,000,000'),
     `首屏数字滚动到位：${heroNum?.now}（终值 ${heroNum?.final}）`,
+  );
+}
+
+/* ===================== B11 · 互动模块 + 可折叠参考资料 ===================== */
+await loadWithTheme('light');
+await page.setViewport({ width: 1280, height: 800 });
+await evaluate(() => document.getElementById('outro').scrollIntoView({ block: 'center', behavior: 'instant' }));
+await new Promise((r) => setTimeout(r, 400));
+{
+  /* 1) 参考资料默认收起，点击可展开再收起，条目数不变 */
+  const factCount = await evaluate(() => (window.__factIds || []).length);
+  const before = await evaluate(() => {
+    const d = document.querySelector('.outro__refs');
+    return { open: d.open, items: d.querySelectorAll('li').length };
+  });
+  await page.click('.outro__refs summary');
+  await new Promise((r) => setTimeout(r, 150));
+  const opened = await evaluate(() => {
+    const d = document.querySelector('.outro__refs');
+    return { open: d.open, items: d.querySelectorAll('li').length };
+  });
+  await page.click('.outro__refs summary');
+  await new Promise((r) => setTimeout(r, 150));
+  const closed = await evaluate(() => document.querySelector('.outro__refs').open);
+  record(
+    'refs-collapsible',
+    before.open === false && opened.open === true && closed === false &&
+      before.items === factCount && opened.items === factCount,
+    `默认收起=${!before.open} → 展开=${opened.open} → 收起=${!closed}，条目 ${opened.items}（=${factCount}）`,
+  );
+
+  /* 2) 发射器：低强度不发射，高强度才描画曲线 */
+  const setRange = (v) =>
+    evaluate((val) => {
+      const el = document.getElementById('spike-level');
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+      setter.call(el, String(val));
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    }, v);
+  const readSpike = () =>
+    evaluate(() => ({
+      status: document.querySelector('[data-spike-status]')?.getAttribute('data-spike-status'),
+      drawn: document.querySelector('[data-spike-drawn]')?.getAttribute('data-spike-drawn'),
+      text: document.querySelector('[data-spike-status]')?.textContent || '',
+    }));
+
+  await setRange(30);
+  await page.click('.spike__btn');
+  await new Promise((r) => setTimeout(r, 200));
+  const weak = await readSpike();
+  await setRange(80);
+  await page.click('.spike__btn');
+  await new Promise((r) => setTimeout(r, 1100));
+  const strong = await readSpike();
+  record(
+    'spike-lab',
+    weak.status === 'blocked' && weak.drawn === 'no' && weak.text.includes('不发射') &&
+      strong.status === 'fired' && strong.drawn === 'yes',
+    `30% → ${weak.status}/${weak.drawn}；80% → ${strong.status}/${strong.drawn}`,
   );
 }
 
