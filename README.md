@@ -46,3 +46,13 @@ npm test           # vitest（主题逻辑 + 出处系统校验）
 - 每个数字必须在 `src/data/sources.ts` 注册并带 `source` 字段（vitest 强制校验）
 - 验收以 `npm run build` 为准（vitest 不拦类型错），`scripts/verify.mjs` 为浏览器级断言
 - 分批交付：`b0` 脚手架与双主题 → `b1` Hero → `b2` 导航与组件 → `b3` 长舞台 → `b4` 内容章节 → `b5` 收尾，每个 tag 可独立回滚
+
+## 计算模块
+
+- `src/lib/hh.ts` 实现 Hodgkin-Huxley 四维方程的数值求解（RK4 / Euler 可选），供课程论文中的数值实验使用。
+- SpikeLab 中默认收起的「真实模型」折叠面板会调用该模块；页面默认呈现的手绘示意曲线保持不变。
+- 批量实验脚本与数据见 `scripts/hh-experiments.mjs`。
+
+## License 与引用
+
+MIT —— 详见 [LICENSE](./LICENSE)。若在教学或研究中使用本项目，请按 [CITATION.cff](./CITATION.cff) 引用。
