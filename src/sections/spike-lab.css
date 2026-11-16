@@ -135,9 +135,118 @@
   text-align: center;
 }
 
+.spike-hh {
+  margin-top: 18px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+
+.spike-hh__summary {
+  cursor: pointer;
+  color: var(--ink-2);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.spike-hh__summary:hover {
+  color: var(--accent);
+}
+
+.spike-hh__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 16px 24px;
+  margin-top: 14px;
+  align-items: center;
+}
+
+.spike-hh__note {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--ink-2);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.spike-hh__note strong {
+  color: var(--data-1);
+  font-weight: 500;
+}
+
+.spike-hh__controls label {
+  display: block;
+  color: var(--ink);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.spike-hh__controls input {
+  width: 100%;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.spike-hh__controls button {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--surface);
+  background: var(--accent);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 7px 14px;
+  cursor: pointer;
+}
+
+.spike-hh__viz svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.spike-hh__axis {
+  stroke: var(--border);
+  stroke-width: 1.5;
+}
+
+.spike-hh__zero {
+  stroke: var(--data-6);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+  opacity: 0.6;
+}
+
+.spike-hh__tick {
+  fill: var(--ink-2);
+  font-size: 11px;
+}
+
+.spike-hh__curve {
+  stroke: var(--data-2);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.spike-hh__metrics,
+.spike-hh__hint {
+  margin: 6px 0 0;
+  color: var(--ink-2);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.spike-hh__metrics b {
+  color: var(--data-2);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
 @media (max-width: 760px) {
   .spike__panel {
     grid-template-columns: 1fr;
     gap: 20px;
+  }
+
+  .spike-hh__body {
+    grid-template-columns: 1fr;
   }
 }

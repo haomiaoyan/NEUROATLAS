@@ -116,6 +116,12 @@ export const FACTS: Fact[] = [
     label: '长期记忆可保持的时间跨度',
     source: { name: '教学示意（定性描述）', kind: 'illustrative' },
   },
+  {
+    id: 'hh-params',
+    value: 'gNa 120 / gK 36 mS/cm²',
+    label: '经典 Hodgkin-Huxley 电导参数（乌贼巨大轴突）',
+    source: { name: 'Hodgkin & Huxley, J Physiol', year: '1952', kind: 'literature' },
+  },
 ];
 
 export function getFact(id: string): Fact {
