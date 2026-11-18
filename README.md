@@ -4,7 +4,7 @@
 
 **在线访问：<https://haomiaoyan.github.io/NEUROATLAS/>**（push 到 `main` 自动部署）
 
-![NEUROATLAS 首屏：TechText 标题 + 神经元计数](docs/hero-v2.png)
+![NEUROATLAS 首屏：TechText 标题 + 神经元计数](docs/hero-v3.png)
 
 > 你的头骨里约有 86,000,000,000 个神经元——每一个都正在和你一起读这行字。
 
